@@ -1,0 +1,41 @@
+{
+  "errors": [],
+  "warnings": [
+    "unsupported file in images/: .gitkeep"
+  ],
+  "stats": {
+    "total_images": 0,
+    "images_on_disk": 0,
+    "manifest_hash": null,
+    "by_denomination": {},
+    "target_by_side": {
+      "front": 0,
+      "back": 0,
+      "unknown": 0
+    },
+    "by_split": {},
+    "by_split_and_denomination": {},
+    "sessions": {},
+    "by_source": {},
+    "by_lighting": {},
+    "resolution_buckets": {},
+    "boxes_per_image": {},
+    "label_files_missing": 0,
+    "blurry_images_laplacian_var_lt_20": 0,
+    "near_duplicate_pairs_same_split": 0,
+    "cross_split_near_duplicates": 0
+  },
+  "ready_for_training": false,
+  "readiness_blockers": [
+    "no images in the dataset",
+    "no front-side images of the new Rs.50 note",
+    "no back-side images of the new Rs.50 note",
+    "no negative images of the Rs.10 note",
+    "no negative images of the Rs.20 note",
+    "no negative images of the Rs.100 note",
+    "no negative images of the Rs.200 note",
+    "no negative images of the Rs.500 note",
+    "no ordinary-object / empty-background negatives",
+    "fewer than 3 capture sessions (cannot form leak-free train/val/test)"
+  ]
+}

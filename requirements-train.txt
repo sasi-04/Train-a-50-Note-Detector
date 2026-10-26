@@ -1,0 +1,7 @@
+# Training / export / evaluation tooling. Not needed to run test.py.
+-r requirements.txt
+ultralytics>=8.3,<9      # YOLOv8 training + ONNX export (AGPL-3.0, see docs/MODEL_CARD.md)
+torch>=2.2               # CPU build from PyPI is enough on Windows/Linux
+onnx>=1.15
+onnxruntime>=1.17        # used only by scripts/validate_onnx.py as an independent cross-check
+matplotlib>=3.7          # threshold / PR curves in evaluation reports

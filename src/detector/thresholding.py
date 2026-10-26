@@ -1,0 +1,163 @@
+"""Accept/reject decisions, temporal confirmation, and validation-driven threshold selection."""
+
+from __future__ import annotations
+
+from collections import deque
+from dataclasses import dataclass
+from typing import Iterable, Sequence
+
+from .postprocessing import Candidate
+
+ACCEPTED = "accepted"
+BELOW_THRESHOLD = "below_threshold"
+WRONG_CLASS = "wrong_class"
+INVALID_BOX = "invalid_box"
+
+
+@dataclass(frozen=True)
+class Decision:
+    candidate: Candidate
+    accepted: bool
+    reason: str
+
+
+def decide(
+    candidates: Iterable[Candidate],
+    threshold: float,
+    target_class_id: int = 0,
+    frame_w: int | None = None,
+    frame_h: int | None = None,
+) -> list[Decision]:
+    """Label every candidate accepted/rejected with a machine-readable reason."""
+    out: list[Decision] = []
+    for c in candidates:
+        if c.class_id != target_class_id:
+            out.append(Decision(c, False, WRONG_CLASS))
+        elif c.width <= 0 or c.height <= 0 or (frame_w is not None and c.x1 >= frame_w) or (
+            frame_h is not None and c.y1 >= frame_h
+        ):
+            out.append(Decision(c, False, INVALID_BOX))
+        elif c.score < threshold:
+            out.append(Decision(c, False, BELOW_THRESHOLD))
+        else:
+            out.append(Decision(c, True, ACCEPTED))
+    return out
+
+
+def accepted(decisions: Iterable[Decision]) -> list[Candidate]:
+    return [d.candidate for d in decisions if d.accepted]
+
+
+class TemporalConfirmer:
+    """Require k hits in the last m frames to enter the 'detected' state, with hysteresis to leave.
+
+    ``confirm_frames <= 1`` disables the filter entirely (pass-through), so evaluation and
+    debugging see the raw per-frame decision. A box is only ever shown for the *current*
+    frame, never replayed from an earlier one.
+    """
+
+    def __init__(self, confirm_frames: int = 1, window_frames: int = 5, release_ratio: float = 0.8, grace: int = 2):
+        if confirm_frames < 1 or window_frames < confirm_frames:
+            raise ValueError("need 1 <= confirm_frames <= window_frames")
+        if not (0.0 < release_ratio <= 1.0):
+            raise ValueError("release_ratio must be in (0, 1]")
+        self.confirm_frames = confirm_frames
+        self.window_frames = window_frames
+        self.release_ratio = release_ratio
+        self.grace = grace
+        self.reset()
+
+    @property
+    def enabled(self) -> bool:
+        return self.confirm_frames > 1
+
+    def reset(self) -> None:
+        self._hits: deque[bool] = deque(maxlen=self.window_frames)
+        self._active = False
+        self._misses = 0
+
+    @property
+    def state(self) -> str:
+        if not self.enabled:
+            return "off"
+        if self._active:
+            return "locked"
+        return f"confirming {sum(self._hits)}/{self.confirm_frames}"
+
+    def update(self, decisions: Sequence[Decision], threshold: float) -> Candidate | None:
+        """Return the candidate to display for this frame, or None."""
+        best = max((d.candidate for d in decisions if d.accepted), key=lambda c: c.score, default=None)
+        if not self.enabled:
+            return best
+        release = threshold * self.release_ratio
+        loose = max(
+            (d.candidate for d in decisions if d.reason in (ACCEPTED, BELOW_THRESHOLD) and d.candidate.score >= release),
+            key=lambda c: c.score,
+            default=None,
+        )
+        if not self._active:
+            self._hits.append(best is not None)
+            if best is not None and sum(self._hits) >= self.confirm_frames:
+                self._active, self._misses = True, 0
+                return best
+            return None
+        if loose is not None:
+            self._misses = 0
+            return loose
+        self._misses += 1
+        if self._misses >= self.grace:
+            self.reset()
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Threshold selection (used by scripts/evaluate.py on the VALIDATION split only)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class SweepPoint:
+    threshold: float
+    tp: int
+    fp: int
+    fn: int
+    neg_images_with_fp: int
+    neg_images: int
+    precision: float
+    recall: float
+    f1: float
+
+    @property
+    def neg_fp_rate(self) -> float:
+        return self.neg_images_with_fp / self.neg_images if self.neg_images else float("nan")
+
+
+def select_threshold(
+    sweep: Sequence[SweepPoint],
+    max_neg_fp_rate: float = 0.0,
+    min_recall: float = 0.80,
+    beta: float = 0.5,
+) -> tuple[SweepPoint, str]:
+    """Pick the operating point favouring false-positive avoidance.
+
+    1. Among points whose negative-image FP rate <= ``max_neg_fp_rate`` and recall >= ``min_recall``,
+       choose the highest-recall one; ties go to the HIGHER threshold (more margin).
+    2. If none qualifies, fall back to the point maximising F-beta (beta<1 weights precision more).
+    The returned string says which rule fired so the report is honest about it.
+    """
+    if not sweep:
+        raise ValueError("empty sweep")
+    ok = [p for p in sweep if p.neg_images and p.neg_fp_rate <= max_neg_fp_rate and p.recall >= min_recall]
+    if ok:
+        best = max(ok, key=lambda p: (p.recall, p.threshold))
+        return best, (
+            f"rule 1: negative-image FP rate <= {max_neg_fp_rate:.3f} and recall >= {min_recall:.2f}; "
+            "highest recall, ties -> higher threshold"
+        )
+
+    def fbeta(p: SweepPoint) -> float:
+        d = beta * beta * p.precision + p.recall
+        return (1 + beta * beta) * p.precision * p.recall / d if d > 0 else 0.0
+
+    best = max(sweep, key=lambda p: (fbeta(p), p.threshold))
+    return best, f"rule 2 (fallback): no point met the FP/recall constraints; maximised F{beta:g}"

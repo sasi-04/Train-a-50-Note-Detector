@@ -1,0 +1,6 @@
+# Runtime dependencies: everything needed for `python test.py --model model.onnx`
+# (no PyTorch, no GPU, no server).
+opencv-python>=4.8,<6
+numpy>=1.24
+PyYAML>=6.0
+Pillow>=10.0

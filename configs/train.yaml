@@ -1,0 +1,37 @@
+# Training configuration for scripts/train.py (Ultralytics YOLOv8n, single class).
+# Every key under `train:` is passed to Ultralytics; edit here or override on the command line.
+
+model: yolov8n.pt        # COCO-pretrained starting weights, auto-downloaded by Ultralytics on first use.
+                         # They contain no banknote data. Use yolov8n.yaml to train from scratch (not advised with small data).
+dataset: dataset
+run_dir: runs
+run_name: rs50
+seed: 0
+
+train:
+  imgsz: 480             # 640 forward pass measured at ~115 ms vs ~62 ms at 480 on the dev laptop CPU
+                         # (random-init yolov8n, OpenCV 5, i5-7300U); revisit with scripts/evaluate.py once data exists.
+  epochs: 100
+  patience: 25           # early stopping on validation fitness
+  batch: 8
+  workers: 2
+  device: cpu
+  optimizer: auto
+  deterministic: true
+  cos_lr: false
+  close_mosaic: 10
+  plots: true
+  # --- augmentation: physically plausible only ---------------------------------------------------
+  hsv_h: 0.01            # tiny hue jitter: the blue-green colour is a class cue, do not shift it
+  hsv_s: 0.5             # saturation changes (camera white balance, faded notes)
+  hsv_v: 0.4             # brightness changes (dim/bright rooms)
+  degrees: 15            # notes are handheld/rotated
+  translate: 0.1
+  scale: 0.4             # distance variation
+  shear: 2.0
+  perspective: 0.0005    # mild viewing-angle distortion
+  flipud: 0.0
+  fliplr: 0.0            # mirrored banknotes (flipped text/portrait) never occur in the real world
+  mosaic: 0.8
+  mixup: 0.0
+  copy_paste: 0.0

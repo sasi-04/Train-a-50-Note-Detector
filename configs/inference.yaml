@@ -1,0 +1,17 @@
+# Inference defaults used by test.py. Command-line flags override these.
+#
+# threshold_validated stays false until scripts/evaluate.py --select-threshold --write-config has
+# chosen the threshold on the VALIDATION split. While false, test.py labels the threshold as
+# "NOT VALIDATED". 0.50 below is a provisional placeholder, not a measured operating point.
+imgsz: 480
+threshold: 0.50
+threshold_validated: false
+threshold_source: provisional placeholder (no validation data collected yet)
+nms_iou: 0.45
+candidate_floor: 0.05
+target_class_id: 0
+# Temporal confirmation: 1 = off. Enabling it trades latency for flicker suppression; it is not
+# credited in any reported metric (evaluation always uses the raw per-frame decision).
+confirm_frames: 1
+window_frames: 5
+release_threshold_ratio: 0.8
