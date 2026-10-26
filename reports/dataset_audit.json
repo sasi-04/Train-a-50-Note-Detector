@@ -1,41 +1,93 @@
 {
   "errors": [],
   "warnings": [
-    "unsupported file in images/: .gitkeep"
+    "unsupported file in images/: .gitkeep",
+    "79 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)",
+    "only 28 front-side target images (recommended >= 100)",
+    "only 17 back-side target images (recommended >= 100)",
+    "only 12 images of Rs.10 (recommended >= 30); per-denomination error rates will be unreliable",
+    "only 12 images of Rs.20 (recommended >= 30); per-denomination error rates will be unreliable",
+    "only 15 images of Rs.100 (recommended >= 30); per-denomination error rates will be unreliable",
+    "only 12 images of Rs.200 (recommended >= 30); per-denomination error rates will be unreliable",
+    "only 10 images of Rs.500 (recommended >= 30); per-denomination error rates will be unreliable",
+    "only 5 object/background negatives (recommended >= 50)",
+    "no images of the OLD Rs.50 note (not the target; recommended as a hard negative)"
   ],
   "stats": {
-    "total_images": 0,
-    "images_on_disk": 0,
-    "manifest_hash": null,
-    "by_denomination": {},
-    "target_by_side": {
-      "front": 0,
-      "back": 0,
-      "unknown": 0
+    "total_images": 117,
+    "images_on_disk": 117,
+    "manifest_hash": "258f672f30b057e4",
+    "by_denomination": {
+      "50_new": 51,
+      "background": 5,
+      "10": 12,
+      "20": 12,
+      "200": 12,
+      "100": 15,
+      "500": 10
     },
-    "by_split": {},
-    "by_split_and_denomination": {},
-    "sessions": {},
-    "by_source": {},
-    "by_lighting": {},
-    "resolution_buckets": {},
-    "boxes_per_image": {},
+    "target_by_side": {
+      "front": 28,
+      "back": 17,
+      "unknown": 6
+    },
+    "by_split": {
+      "train": 53,
+      "test": 29,
+      "val": 35
+    },
+    "by_split_and_denomination": {
+      "train": {
+        "50_new": 24,
+        "background": 4,
+        "100": 7,
+        "10": 4,
+        "200": 5,
+        "20": 4,
+        "500": 5
+      },
+      "test": {
+        "50_new": 14,
+        "10": 1,
+        "20": 8,
+        "200": 6
+      },
+      "val": {
+        "50_new": 13,
+        "background": 1,
+        "100": 8,
+        "10": 7,
+        "200": 1,
+        "500": 5
+      }
+    },
+    "sessions": {
+      "hand_a": 20,
+      "hand_b_close": 12,
+      "hand_b_face": 13,
+      "scan_test_blue": 6,
+      "scan_test_crop": 11,
+      "scan_train": 33,
+      "scan_val": 22
+    },
+    "by_source": {
+      "phone": 117
+    },
+    "by_lighting": {
+      "unknown": 117
+    },
+    "resolution_buckets": {
+      "<= 1600": 117
+    },
+    "boxes_per_image": {
+      "0": 66,
+      "1": 51
+    },
     "label_files_missing": 0,
-    "blurry_images_laplacian_var_lt_20": 0,
-    "near_duplicate_pairs_same_split": 0,
+    "blurry_images_laplacian_var_lt_20": 4,
+    "near_duplicate_pairs_same_split": 79,
     "cross_split_near_duplicates": 0
   },
-  "ready_for_training": false,
-  "readiness_blockers": [
-    "no images in the dataset",
-    "no front-side images of the new Rs.50 note",
-    "no back-side images of the new Rs.50 note",
-    "no negative images of the Rs.10 note",
-    "no negative images of the Rs.20 note",
-    "no negative images of the Rs.100 note",
-    "no negative images of the Rs.200 note",
-    "no negative images of the Rs.500 note",
-    "no ordinary-object / empty-background negatives",
-    "fewer than 3 capture sessions (cannot form leak-free train/val/test)"
-  ]
+  "ready_for_training": true,
+  "readiness_blockers": []
 }

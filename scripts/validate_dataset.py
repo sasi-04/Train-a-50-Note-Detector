@@ -12,16 +12,19 @@ from pathlib import Path
 
 import _bootstrap  # noqa: F401
 
-from detector.dataset import audit_dataset, render_markdown
+from detector.dataset import NEAR_DUP_DISTANCE, audit_dataset, render_markdown
 
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--dataset", default="dataset")
     p.add_argument("--out", default="reports")
-    p.add_argument("--near-dup-distance", type=int, default=5, help="max dHash Hamming distance (of 64 bits)")
+    p.add_argument("--near-dup-distance", type=int, default=NEAR_DUP_DISTANCE,
+                   help="max dHash Hamming distance (of 256 bits) to call two images near-duplicates")
+    p.add_argument("--allow-no-objects", action="store_true",
+                   help="do not block on missing object/background negatives (reported as a warning)")
     a = p.parse_args()
-    res = audit_dataset(a.dataset, near_dup_distance=a.near_dup_distance)
+    res = audit_dataset(a.dataset, near_dup_distance=a.near_dup_distance, require_non_notes=not a.allow_no_objects)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "dataset_audit.md").write_text(render_markdown(res, a.dataset), encoding="utf-8")

@@ -78,6 +78,7 @@ def test_select_threshold_falls_back_when_constraints_unmet():
     assert why.startswith("rule 2") and best.threshold == 0.5
 
 
-def test_select_threshold_ties_go_to_higher_threshold():
-    pts = [sp(0.6, 90, 0, 10, 0), sp(0.7, 90, 0, 10, 0)]
-    assert select_threshold(pts)[0].threshold == 0.7
+def test_select_threshold_ties_pick_middle_of_plateau_not_the_edge():
+    pts = [sp(t / 100, 90, 0, 10, 0) for t in range(40, 95, 5)] + [sp(0.95, 50, 0, 50, 0)]
+    best, why = select_threshold(pts)
+    assert best.threshold == 0.65 and "middle" in why

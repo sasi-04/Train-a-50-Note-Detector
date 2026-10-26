@@ -168,8 +168,12 @@ def write_label_file(path: Path, boxes: Iterable[tuple[int, float, float, float,
 # ---------------------------------------------------------------------------------------------
 # image fingerprints
 # ---------------------------------------------------------------------------------------------
+HASH_SIZE = 16  # 16x16 = 256-bit dHash. 8x8 (64-bit) falsely matched different banknotes that share one layout.
+NEAR_DUP_DISTANCE = 20  # bits of 256 (~8%); measured: same-shot pairs <= ~12%, different notes >= 18%
+
+
 def dhash(gray: np.ndarray) -> int:
-    small = cv2.resize(gray, (9, 8), interpolation=cv2.INTER_AREA)
+    small = cv2.resize(gray, (HASH_SIZE + 1, HASH_SIZE), interpolation=cv2.INTER_AREA)
     bits = (small[:, 1:] > small[:, :-1]).flatten()
     return int("".join("1" if b else "0" for b in bits), 2)
 
@@ -193,7 +197,8 @@ class AuditResult:
         return json.dumps(self.__dict__, indent=2, default=str)
 
 
-def audit_dataset(root: Path | str, num_classes: int = 1, near_dup_distance: int = 5) -> AuditResult:
+def audit_dataset(root: Path | str, num_classes: int = 1, near_dup_distance: int = NEAR_DUP_DISTANCE,
+                  require_non_notes: bool = True) -> AuditResult:
     """Inspect actual files on disk and the manifest; never trusts filenames for denomination."""
     paths = DatasetPaths(Path(root))
     res = AuditResult()
@@ -331,7 +336,11 @@ def audit_dataset(root: Path | str, num_classes: int = 1, near_dup_distance: int
         if den[d] == 0:
             blockers.append(f"no negative images of the Rs.{d} note")
     if den["object"] + den["background"] == 0:
-        blockers.append("no ordinary-object / empty-background negatives")
+        if require_non_notes:
+            blockers.append("no ordinary-object / empty-background negatives")
+        else:
+            warn.append("NO ordinary-object / empty-background negatives (explicitly allowed): false positives on "
+                        "non-note scenes are untested and the detector never saw such backgrounds")
     if len([s for s in sessions if s]) < 3:
         blockers.append("fewer than 3 capture sessions (cannot form leak-free train/val/test)")
     if split_counts.get("unassigned", 0) and len(rows) > 0:

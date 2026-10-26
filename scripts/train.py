@@ -26,13 +26,14 @@ from detector import TARGET_CLASS_NAME
 from detector.dataset import DatasetPaths, audit_dataset, load_manifest, manifest_hash, sha256_file
 
 
-def write_data_yaml(paths: DatasetPaths, run_dir: Path) -> Path:
+def write_data_yaml(paths: DatasetPaths, run_dir: Path, final_fit: bool = False) -> Path:
     """Write absolute-path split lists + data.yaml from the manifest (labels resolved by /images/->/labels/)."""
     rows = load_manifest(paths)
     data_dir = run_dir / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
     for sp in ("train", "val", "test"):
-        lst = [str((paths.images / r["filename"]).resolve()) for r in rows if r["split"] == sp]
+        lst = [str((paths.images / r["filename"]).resolve()) for r in rows
+               if r["split"] == sp or (final_fit and sp == "train")]
         (data_dir / f"{sp}.txt").write_text("\n".join(lst) + "\n", encoding="utf-8")
     data = {"path": str(data_dir.resolve()), "train": "train.txt", "val": "val.txt", "test": "test.txt",
             "names": {0: TARGET_CLASS_NAME}}
@@ -53,6 +54,11 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--allow-small", action="store_true", help="skip the coverage gate (smoke tests only)")
+    ap.add_argument("--allow-no-objects", action="store_true",
+                    help="train without object/background negatives (recorded in run_info.json)")
+    ap.add_argument("--final-fit", action="store_true",
+                    help="train on ALL images (train+val+test) for the shipped model; Ultralytics 'val' is then "
+                         "just a training-progress monitor and NO held-out metric from this run is valid")
     a = ap.parse_args()
 
     cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8"))
@@ -66,7 +72,7 @@ def main() -> int:
     run_root = Path(cfg.get("run_dir", "runs")).resolve()
     run_dir = run_root / name
 
-    audit = audit_dataset(dataset_root)
+    audit = audit_dataset(dataset_root, require_non_notes=not a.allow_no_objects)
     print(f"dataset audit: {audit.stats['total_images']} images, {len(audit.errors)} errors, {len(audit.warnings)} warnings")
     gate_errors = list(audit.errors) if a.allow_small else audit.readiness_blockers
     if gate_errors:
@@ -92,7 +98,7 @@ def main() -> int:
     random.seed(seed)
     torch.manual_seed(seed)
     paths = DatasetPaths(dataset_root)
-    data_yaml = write_data_yaml(paths, run_dir)
+    data_yaml = write_data_yaml(paths, run_dir, a.final_fit)
 
     model_src = cfg.get("model", "yolov8n.pt")
     last = run_dir / "weights" / "last.pt"
@@ -113,6 +119,7 @@ def main() -> int:
     info = {
         "finished_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "deliverable": not a.allow_small, "dataset_ready": audit.ready_for_training,
+        "final_fit_on_all_images": a.final_fit, "allowed_no_object_negatives": a.allow_no_objects,
         "dataset_manifest_hash": manifest_hash(load_manifest(paths)), "dataset_stats": audit.stats,
         "effective_config": {"model": str(model_src), "seed": seed, **tr},
         "versions": {"python": platform.python_version(), "torch": torch.__version__, "ultralytics": ultralytics.__version__},

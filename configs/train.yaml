@@ -11,15 +11,15 @@ seed: 0
 train:
   imgsz: 480             # 640 forward pass measured at ~115 ms vs ~62 ms at 480 on the dev laptop CPU
                          # (random-init yolov8n, OpenCV 5, i5-7300U); revisit with scripts/evaluate.py once data exists.
-  epochs: 100
-  patience: 25           # early stopping on validation fitness
+  epochs: 120
+  patience: 50           # early stopping on validation fitness (noisy when val is tiny, hence generous)
   batch: 8
   workers: 2
   device: cpu
   optimizer: auto
   deterministic: true
   cos_lr: false
-  close_mosaic: 10
+  close_mosaic: 15
   plots: true
   # --- augmentation: physically plausible only ---------------------------------------------------
   hsv_h: 0.01            # tiny hue jitter: the blue-green colour is a class cue, do not shift it
@@ -27,11 +27,11 @@ train:
   hsv_v: 0.4             # brightness changes (dim/bright rooms)
   degrees: 15            # notes are handheld/rotated
   translate: 0.1
-  scale: 0.4             # distance variation
+  scale: 0.6             # distance variation (wide: the training photos are tight, full-frame crops)
   shear: 2.0
   perspective: 0.0005    # mild viewing-angle distortion
   flipud: 0.0
   fliplr: 0.0            # mirrored banknotes (flipped text/portrait) never occur in the real world
-  mosaic: 0.8
+  mosaic: 1.0            # tiles 4 photos per sample: puts notes at ~half scale among other notes/backgrounds
   mixup: 0.0
   copy_paste: 0.0

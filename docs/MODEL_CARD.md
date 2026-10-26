@@ -1,55 +1,59 @@
 # Model card: ₹50 Vision detector
 
-**Status: no trained model has been produced yet.** Fields marked *pending* are filled after the README workflow is run on
-real photographs. Nothing below is a measured result unless it says "measured".
-
 ## Summary
 
 | | |
 |---|---|
-| Task | single-class object detection of the **new Indian ₹50 note** (front or back) |
-| Architecture | Ultralytics YOLOv8n (3.0 M parameters), COCO-pretrained initialisation, fine-tuned |
-| Class | `0: fifty_rupee_note` (displayed as `₹50`) |
-| Input | 480×480 letterboxed RGB (configurable at export), float32 NCHW, /255 |
-| Output | `(1, 5, 4725)` at 480: `cx, cy, w, h, score`; NMS done outside the graph |
-| Export | ONNX opset 12, fixed shape, FP32, ≈ 12 MB (measured on a random-init export; actual file *pending*) |
-| Runtime | OpenCV DNN on CPU (verified with OpenCV 5.0.0 and 4.14.0) |
-| Licence | Ultralytics is AGPL-3.0 — review before commercial use |
+| Task | single-class detection of the **new Indian ₹50 note** (front or back) |
+| Architecture | Ultralytics YOLOv8n (3.0 M params), COCO-pretrained start, fine-tuned for 120 epochs on CPU |
+| Class | `0: fifty_rupee_note` (shown as `₹50`) |
+| Input | 480×480 letterboxed RGB, float32 NCHW, /255 |
+| Output | `(1, 5, 4725)`: `cx, cy, w, h, score`; NMS applied outside the graph (IoU 0.45) |
+| Export | ONNX opset 12, fixed shape, FP32, 12.7 MB, sha256 `c4cc2902…ba6c4`; metadata in `model.meta.json` |
+| Runtime | OpenCV DNN, CPU (OpenCV 5.0.0 verified; 4.14.0 verified for the loader/tests) |
+| Default threshold | 0.54, chosen on the validation split of the *evaluation* model |
+| Versions | ultralytics 8.4.189, torch 2.14.1 (CPU) |
+| Licence | Ultralytics is AGPL-3.0; review before commercial use |
 
 ## Intended use and non-use
 
-Intended: technical demonstration that a webcam application can find the specified ₹50 note and not label other notes or
-objects as ₹50. **Not** a currency-authentication or counterfeit-detection system. A detection does **not** show the note is
-genuine, and a non-detection does not show it is fake. Not validated for any other denomination or banknote series.
+Technical demonstration that a webcam application can find the specified ₹50 note and not label other notes/objects as ₹50.
+**Not** a currency-authentication or counterfeit-detection system; a detection does not show a note is genuine.
 
-## Data (pending)
+## Data
 
-* Source: photographs taken by the developer with their own phone, of genuine notes; nothing downloaded or generated.
-* Positives: new ₹50, front and back. Negatives: ₹10, ₹20, ₹100, ₹200, ₹500, other objects, empty backgrounds
-  (optionally old ₹50). Counts: *pending* (`reports/dataset_audit.md`).
-* Annotation: boxes drawn by hand with `scripts/annotate.py`; negatives are empty label files.
-* Splits: whole capture sessions → train/val/test; audited for near-duplicate leakage.
+* 117 images from the developer's own captures (scanner-app/phone), one physical note per denomination:
+  new ₹50 ×51 (front, back and unknown-side, including 40 hand-held frames), ₹10 ×12, ₹20 ×12, ₹100 ×15, ₹200 ×12, ₹500 ×10,
+  no-note frames ×5.
+* Nothing downloaded or generated. Boxes for the 51 targets were proposed by colour/segmentation and **visually reviewed**
+  (not hand-drawn). Negatives have empty labels.
+* Splits by whole cluster/session (`dataset/metadata/*.yaml` documents each choice).
+* **Narrowness:** one ₹50 note, essentially one room/person, no lighting or angle metadata, no other note held in hand, no
+  clutter or objects beyond 5 frames.
 
-## Training (configuration is real; run is pending)
+## Training
 
-`configs/train.yaml`: YOLOv8n from COCO weights, 480 px, ≤ 100 epochs with patience 25, batch 8, CPU, seed 0,
-deterministic; augmentation: hue ±0.01, saturation 0.5, value 0.4, rotation ±15°, translate 0.1, scale 0.4, shear 2°,
-perspective 0.0005, mosaic 0.8, no flips, no mixup. Best checkpoint chosen by Ultralytics on the validation split only.
+`configs/train.yaml`: 480 px, ≤ 120 epochs, patience 50, batch 8, seed 0, deterministic, CPU. Augmentation: hue ±0.01,
+saturation 0.5, value 0.4, rotation ±15°, translate 0.1, scale 0.6, shear 2°, perspective 5e-4, mosaic 1.0, no flips/mixup.
+Two runs: `rs50_split` (train split only; used for all held-out numbers) and **`rs50_final` (all 117 images; shipped)**.
 
-## Evaluation
+## Evaluation (evaluation model, held-out; details in EVALUATION.md)
 
-*Pending.* See [EVALUATION.md](EVALUATION.md) for definitions and protocol. Measured so far, on **random-init/toy models only**
-(this machine: i5-7300U, 2 cores, OpenCV 5.0.0): forward-pass median ≈ 115 ms at 640, ≈ 62 ms at 480, ≈ 47 ms at 416,
-≈ 24 ms at 320. These are architecture timings, independent of weights.
+| split | targets found | false ₹50 on negative images |
+|---|---|---|
+| val | 13 / 13 | 0 / 22 |
+| test | 7 / 14 (back 6/6, **front 1/8**) | 1 / 15 (a ₹20) |
 
-## Known failure modes to check (hypotheses, not findings)
+The shipped model has no held-out score. Live: 0 accepted ₹50 in 150 webcam frames with no note shown.
+Latency on the development CPU (i5-7300U): forward ≈ 87 ms median, pipeline ≈ 91 ms (≈ 11 FPS).
 
-* ₹10/₹20/₹200 notes under warm indoor light may look similar in colour to the blue-green ₹50.
-* Small, distant or heavily tilted notes; strong glare on the polymer thread; notes in a fan or partly folded.
-* Other blue-green rectangles (cards, packaging), phone screens showing a note.
-* Webcams with strong auto white balance (colour is a class cue and `hsv_h` augmentation is deliberately tiny).
-* Over-fitting to the developer's sessions/backgrounds if sessions are few.
+## Known failure modes (observed or likely)
+
+* **Observed:** front-side close-ups that are dark, rotated and fill the frame were missed by the evaluation model; a ₹20 on a
+  blue table scored above the threshold.
+* **Likely:** other light-coloured notes held in hand, tilted/sideways notes, dim light, glare, clutter, different camera white
+  balance, the same-design ₹50 in poor condition, a second note in view.
 
 ## Hardware
 
-Training and all measurements so far: Windows 10, Intel Core i5-7300U @ 2.60 GHz (2 cores / 4 threads), no GPU.
+Windows 10, Intel Core i5-7300U, no GPU.

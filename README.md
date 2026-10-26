@@ -9,12 +9,17 @@ YOLOv8n is trained on the developer's own phone photographs, exported to **ONNX*
 python test.py --model model.onnx
 ```
 
-> **Status of this repository (read first).** All code, tooling and tests are in place and have been run, but
-> **no trained `model.onnx` exists yet** and **no banknote photographs have been collected**: those require the
-> developer's real phone photos of genuine notes, which cannot be fabricated. Until they are collected, trained
-> and evaluated, this README contains **no accuracy, false-positive or FPS claims for the banknote model**. The
-> pipeline itself was verified with throwaway models trained on synthetic rectangles; see
-> [docs/ACCEPTANCE_REPORT.md](docs/ACCEPTANCE_REPORT.md) for exactly what was and was not verified.
+> **Status (read first).** `model.onnx` (YOLOv8n, 480 px, 12.7 MB) is trained on **117 of the developer's own phone
+> captures** (51 of the new ₹50 from *one physical note*, front and back; one note each of ₹10/20/100/200/500 as
+> negatives; 5 no-note frames). That is a **small, narrow dataset**, so expect misses and the occasional false alarm,
+> especially for dim light, tilted or sideways notes, and other denominations held in hand (not in the data).
+>
+> Measured honestly (details and caveats in [docs/EVALUATION.md](docs/EVALUATION.md)): the *evaluation* model, trained
+> without the held-out images, found 6/6 held-out ₹50 backs but only 1/8 held-out fronts (dark, rotated close-ups),
+> and 1 of 15 held-out negative images (a ₹20) was labelled ₹50. The *shipped* model was then retrained on all
+> images, so no held-out number exists for it. A 150-frame live webcam run with no note shown raised 0 false ₹50s.
+> A live positive test with real notes on your camera has **not** been done by the developer tooling.
+> Full audit: [docs/ACCEPTANCE_REPORT.md](docs/ACCEPTANCE_REPORT.md).
 
 ## What you should see when you run it
 
@@ -76,11 +81,11 @@ python test.py --help
 Exit codes: 0 ok · 2 bad arguments · 3 model missing/unloadable · 4 camera problem · 5 repeated inference failure.
 A failed inference is shown as an error banner and never as "no detection" or a ₹50.
 
-**Operating threshold.** `configs/inference.yaml` ships with a *provisional* `0.50` and
-`threshold_validated: false`. After training, `scripts/evaluate.py --select-threshold --write-config` chooses the
-threshold on the **validation** split (lowest false-positive rate first, then highest recall) and flips that flag.
-A higher threshold reduces false positives but misses more genuine notes; the trade-off curve is written to
-`reports/threshold_analysis_val.png` and `reports/threshold_sweep_val.csv`.
+**Operating threshold.** `configs/inference.yaml` holds `0.54`, selected by `scripts/evaluate.py --select-threshold` on the
+**validation** split of the evaluation model (no false ₹50 on its 22 negatives, 13/13 targets found; the FP-free plateau
+was only 0.45–0.62 wide). The shipped model reuses that value. A higher threshold reduces false positives but misses more
+genuine notes: `--threshold 0.45` is more sensitive, `--threshold 0.65` stricter. Trade-off curve:
+`reports/threshold_analysis_val.png`, `reports/threshold_sweep_val.csv`. Press `+`/`-` while running to adjust live.
 
 ## Complete workflow: photos → model → evaluation
 
@@ -89,6 +94,10 @@ Full collection protocol: [docs/DATASET_COLLECTION.md](docs/DATASET_COLLECTION.m
 **Hard rules (from the assignment):** photograph genuine notes yourself with your phone; photograph the new ₹50
 on **both sides** and ₹10, ₹20, ₹100, ₹200, ₹500 as negatives; never download banknote images, never use generated
 images, never print or photocopy notes. Everything below only ever reads your local dataset.
+
+The current dataset was imported from four scanner-app PDFs with
+`scripts/import_scan_pdf.py` and `scripts/import_handheld.py` (page→label/split maps in `dataset/metadata/*.yaml`, which also
+explain every split decision). To add more photos use the generic flow below, then re-run steps 3–6.
 
 ```bash
 # 1. import each batch of phone photos (EXIF/GPS is stripped on import). One call per denomination/side/condition.
@@ -139,7 +148,7 @@ Each label line: `0 cx cy w h`, normalised to [0,1]; class `0 = fifty_rupee_note
 ## Tests
 
 ```bash
-pytest -q          # 111 tests (110 pass, 1 skipped until a real model.onnx exists), ~25 s; see docs/TEST_PLAN.md
+pytest -q          # 112 tests, ~40 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
 ```
 
 Tests that use fixture or random-weight ONNX models verify *mechanics* (loading, decoding, coordinate mapping,

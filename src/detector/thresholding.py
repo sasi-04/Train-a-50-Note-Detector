@@ -141,7 +141,7 @@ def select_threshold(
     """Pick the operating point favouring false-positive avoidance.
 
     1. Among points whose negative-image FP rate <= ``max_neg_fp_rate`` and recall >= ``min_recall``,
-       choose the highest-recall one; ties go to the HIGHER threshold (more margin).
+       choose the highest-recall one; ties are resolved to the MIDDLE of the tied range.
     2. If none qualifies, fall back to the point maximising F-beta (beta<1 weights precision more).
     The returned string says which rule fired so the report is honest about it.
     """
@@ -149,10 +149,13 @@ def select_threshold(
         raise ValueError("empty sweep")
     ok = [p for p in sweep if p.neg_images and p.neg_fp_rate <= max_neg_fp_rate and p.recall >= min_recall]
     if ok:
-        best = max(ok, key=lambda p: (p.recall, p.threshold))
+        top = max(p.recall for p in ok)
+        plateau = sorted((p for p in ok if p.recall == top), key=lambda p: p.threshold)
+        best = plateau[len(plateau) // 2]  # middle of the plateau: equal margin to both failure modes
         return best, (
             f"rule 1: negative-image FP rate <= {max_neg_fp_rate:.3f} and recall >= {min_recall:.2f}; "
-            "highest recall, ties -> higher threshold"
+            f"highest recall; the {len(plateau)} tied thresholds span {plateau[0].threshold:.2f}-{plateau[-1].threshold:.2f}, "
+            "the middle one is used (not the extreme) so it keeps margin on both sides"
         )
 
     def fbeta(p: SweepPoint) -> float:

@@ -1,0 +1,251 @@
+{
+  "split": "val",
+  "operating_threshold": 0.54,
+  "negative_images": 22,
+  "by_category": {
+    "10": {
+      "tested": 7,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.35433884297520657
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.54": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.06737495213747025
+    },
+    "100": {
+      "tested": 8,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.3244156195108769
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 1,
+        "0.40": 1,
+        "0.50": 0,
+        "0.54": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.4490800201892853
+    },
+    "200": {
+      "tested": 1,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.7934567085261071
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.54": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.0
+    },
+    "500": {
+      "tested": 5,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.43449149475208104
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 1,
+        "0.40": 0,
+        "0.50": 0,
+        "0.54": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.3417128026485443
+    },
+    "background": {
+      "tested": 1,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.7934567085261071
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.54": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.034966908395290375
+    }
+  },
+  "false_score_quantiles": {
+    "50": 0.03406132385134697,
+    "90": 0.21956062167882934,
+    "95": 0.3359336853027343,
+    "99": 0.42653290450572956,
+    "100": 0.4490800201892853
+  },
+  "hardest": [
+    {
+      "image_id": "scan_val_100_back_0004",
+      "denomination": "100",
+      "max_score": 0.4490800201892853,
+      "accepted_at_threshold": false,
+      "needs_manual_review": true
+    },
+    {
+      "image_id": "scan_val_500_back_0004",
+      "denomination": "500",
+      "max_score": 0.3417128026485443,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0003",
+      "denomination": "100",
+      "max_score": 0.22613045573234558,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0001",
+      "denomination": "100",
+      "max_score": 0.1604321151971817,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0002",
+      "denomination": "100",
+      "max_score": 0.13251914083957672,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_500_back_0003",
+      "denomination": "500",
+      "max_score": 0.09348884969949722,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_500_back_0002",
+      "denomination": "500",
+      "max_score": 0.07647285610437393,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0002",
+      "denomination": "10",
+      "max_score": 0.06737495213747025,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0001",
+      "denomination": "10",
+      "max_score": 0.06597535312175751,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0005",
+      "denomination": "10",
+      "max_score": 0.04282067343592644,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "hand_b_face_background_na_0001",
+      "denomination": "background",
+      "max_score": 0.034966908395290375,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0007",
+      "denomination": "100",
+      "max_score": 0.033155739307403564,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0004",
+      "denomination": "10",
+      "max_score": 0.030964050441980362,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0003",
+      "denomination": "10",
+      "max_score": 0.030612247064709663,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_front_0001",
+      "denomination": "10",
+      "max_score": 0.020048702135682106,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0006",
+      "denomination": "100",
+      "max_score": 0.016122762113809586,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0006",
+      "denomination": "10",
+      "max_score": 0.01471290085464716,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0005",
+      "denomination": "100",
+      "max_score": 0.012244048528373241,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0008",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_200_back_0001",
+      "denomination": "200",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    }
+  ]
+}

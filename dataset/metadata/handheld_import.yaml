@@ -1,0 +1,439 @@
+pdfs:
+  A: Scan documents20261026_124812.pdf
+  B: Scan documents20261026_125046.pdf
+  C: Scan documents20261026_125215.pdf
+note: 'Hand-held frames from three developer-supplied scanner-app PDFs (phone captures; consecutive video-like frames). Selection and boxes: colour-segmentation
+  PROPOSALS (+4% padding) that were visually reviewed; frames with blur, a second ambiguous note, or unreliable boxes were left out. Boxes are
+  in full-frame pixels; each kept frame is cropped to a square window around the note (or the upper body for negatives).'
+negatives_are: frames of the person with NO note visible (shirt, trousers, face close-ups)
+items:
+- page: A003
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 250
+  - 1334
+  - 990
+  - 1775
+- page: A005
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 290
+  - 1363
+  - 934
+  - 1795
+- page: A007
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 299
+  - 1375
+  - 938
+  - 1803
+- page: A009
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 248
+  - 1428
+  - 935
+  - 1860
+- page: A052
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 284
+  - 1395
+  - 997
+  - 1726
+- page: A054
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 306
+  - 1316
+  - 971
+  - 1699
+- page: A056
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 306
+  - 1304
+  - 975
+  - 1683
+- page: A058
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 305
+  - 1307
+  - 984
+  - 1700
+- page: A060
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 305
+  - 1290
+  - 984
+  - 1704
+- page: A062
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 329
+  - 1288
+  - 1042
+  - 1772
+- page: A064
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 241
+  - 1267
+  - 1118
+  - 1866
+- page: A083
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 312
+  - 1358
+  - 1153
+  - 1935
+- page: A085
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 308
+  - 1348
+  - 1136
+  - 1867
+- page: A087
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 317
+  - 1351
+  - 1128
+  - 1876
+- page: A089
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 325
+  - 1367
+  - 1144
+  - 1918
+- page: A091
+  target: true
+  side: front
+  session: hand_a
+  split: train
+  box_px:
+  - 346
+  - 1402
+  - 1020
+  - 1993
+- page: A098
+  target: true
+  side: back
+  session: hand_b_face
+  split: val
+  box_px:
+  - 66
+  - 1206
+  - 1247
+  - 1801
+- page: A099
+  target: true
+  side: back
+  session: hand_b_face
+  split: val
+  box_px:
+  - 160
+  - 1228
+  - 1028
+  - 1770
+- page: B003
+  target: true
+  side: back
+  session: hand_b_face
+  split: val
+  box_px:
+  - 58
+  - 1214
+  - 1125
+  - 1818
+- page: B005
+  target: true
+  side: back
+  session: hand_b_face
+  split: val
+  box_px:
+  - 139
+  - 1216
+  - 1020
+  - 1775
+- page: B007
+  target: true
+  side: back
+  session: hand_b_face
+  split: val
+  box_px:
+  - 224
+  - 1342
+  - 1000
+  - 1796
+- page: B009
+  target: true
+  side: back
+  session: hand_b_face
+  split: val
+  box_px:
+  - 75
+  - 1255
+  - 1014
+  - 1748
+- page: B010
+  target: true
+  side: unknown
+  session: hand_b_face
+  split: val
+  box_px:
+  - 361
+  - 1453
+  - 978
+  - 1876
+- page: B012
+  target: true
+  side: unknown
+  session: hand_b_face
+  split: val
+  box_px:
+  - 420
+  - 1656
+  - 878
+  - 1885
+- page: B014
+  target: true
+  side: unknown
+  session: hand_b_face
+  split: val
+  box_px:
+  - 421
+  - 1652
+  - 958
+  - 1877
+- page: B016
+  target: true
+  side: unknown
+  session: hand_b_face
+  split: val
+  box_px:
+  - 449
+  - 1618
+  - 894
+  - 1883
+- page: B018
+  target: true
+  side: unknown
+  session: hand_b_face
+  split: val
+  box_px:
+  - 463
+  - 1613
+  - 965
+  - 1895
+- page: B019
+  target: true
+  side: unknown
+  session: hand_b_face
+  split: val
+  box_px:
+  - 474
+  - 1651
+  - 897
+  - 1915
+- page: B059
+  target: true
+  side: front
+  session: hand_b_close
+  split: test
+  box_px:
+  - 110
+  - 1825
+  - 1564
+  - 3152
+- page: B061
+  target: true
+  side: front
+  session: hand_b_close
+  split: test
+  box_px:
+  - 205
+  - 1863
+  - 1593
+  - 3134
+- page: B063
+  target: true
+  side: front
+  session: hand_b_close
+  split: test
+  box_px:
+  - 0
+  - 1884
+  - 1379
+  - 3139
+- page: B065
+  target: true
+  side: front
+  session: hand_b_close
+  split: test
+  box_px:
+  - 0
+  - 1792
+  - 1315
+  - 3185
+- page: B067
+  target: true
+  side: front
+  session: hand_b_close
+  split: test
+  box_px:
+  - 0
+  - 1984
+  - 1464
+  - 3444
+- page: B069
+  target: true
+  side: front
+  session: hand_b_close
+  split: test
+  box_px:
+  - 0
+  - 2031
+  - 1448
+  - 3468
+- page: B071
+  target: true
+  side: front
+  session: hand_b_close
+  split: test
+  box_px:
+  - 0
+  - 1956
+  - 1470
+  - 3466
+- page: B082
+  target: true
+  side: back
+  session: hand_b_close
+  split: test
+  box_px:
+  - 375
+  - 664
+  - 1719
+  - 2356
+- page: B083
+  target: true
+  side: back
+  session: hand_b_close
+  split: test
+  box_px:
+  - 406
+  - 674
+  - 1755
+  - 2388
+- page: B087
+  target: true
+  side: back
+  session: hand_b_close
+  split: test
+  box_px:
+  - 307
+  - 707
+  - 1700
+  - 2089
+- page: B097
+  target: true
+  side: back
+  session: hand_b_close
+  split: test
+  box_px:
+  - 298
+  - 1269
+  - 1872
+  - 2397
+- page: B098
+  target: true
+  side: back
+  session: hand_b_close
+  split: test
+  box_px:
+  - 287
+  - 1258
+  - 1872
+  - 2403
+- page: A073
+  target: false
+  side: na
+  session: hand_a
+  split: train
+  box_px: null
+- page: A075
+  target: false
+  side: na
+  session: hand_a
+  split: train
+  box_px: null
+- page: A077
+  target: false
+  side: na
+  session: hand_a
+  split: train
+  box_px: null
+- page: A079
+  target: false
+  side: na
+  session: hand_a
+  split: train
+  box_px: null
+- page: B096
+  target: false
+  side: na
+  session: hand_b_face
+  split: val
+  box_px: null

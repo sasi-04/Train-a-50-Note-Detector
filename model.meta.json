@@ -1,0 +1,24 @@
+{
+  "format": "onnx",
+  "imgsz": 480,
+  "opset": 12,
+  "output_shape": [
+    1,
+    5,
+    4725
+  ],
+  "class_names": {
+    "0": "item"
+  },
+  "target_class": "fifty_rupee_note",
+  "display_label": "\u20b950",
+  "preprocess": "letterbox pad=114, RGB, /255, NCHW float32",
+  "source_checkpoint": "runs\\rs50_final\\weights\\best.pt",
+  "source_checkpoint_sha256": "03957db13ca8cea742432ace4c420a7ee125afcb7cadf6179e4a0e1ebcba26e3",
+  "onnx_sha256": "c4cc2902700818cbbecb635bb9162225428e7fc55f7fe68b39af54cb831ba6c4",
+  "onnx_size_bytes": 12699632,
+  "ultralytics": "8.4.189",
+  "torch": "2.14.1+cpu",
+  "onnx": "1.23.2",
+  "exported_utc": "2026-10-26T13:56:22+00:00"
+}

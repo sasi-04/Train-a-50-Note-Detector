@@ -52,6 +52,19 @@ def test_complete_dataset_is_ready(tmp_path):
     assert res.warnings  # below recommended minimums must be flagged, not hidden
 
 
+def test_missing_object_negatives_blocks_unless_explicitly_allowed(tmp_path):
+    paths, rows = build_complete(tmp_path)
+    keep = [r for r in rows if r["denomination"] != "object"]
+    for r in rows:
+        if r["denomination"] == "object":
+            (paths.images / r["filename"]).unlink()
+            (paths.labels / (r["image_id"] + ".txt")).unlink()
+    save_manifest(paths, keep)
+    assert any("object" in b for b in audit_dataset(paths.root).readiness_blockers)
+    res = audit_dataset(paths.root, require_non_notes=False)
+    assert res.ready_for_training and any("NO ordinary-object" in w for w in res.warnings)
+
+
 def test_empty_dataset_not_ready(tmp_path):
     res = audit_dataset(tmp_path / "nothing")
     assert not res.ready_for_training and "no images in the dataset" in res.readiness_blockers
