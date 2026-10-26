@@ -20,11 +20,11 @@ from .logging_utils import get_logger, setup_logging
 from .preprocessing import InvalidImageError
 from .thresholding import TemporalConfirmer, accepted, decide
 from .visualization import (
-    GREEN, draw_detection, draw_hud, draw_inspector, draw_status_banner, rupee_supported,
+    currency, draw_banner, draw_detection, draw_header, draw_hud, draw_inspector, rupee_supported,
 )
 
 EXIT_OK, EXIT_USAGE, EXIT_MODEL, EXIT_CAMERA, EXIT_INFERENCE = 0, 2, 3, 4, 5
-WINDOW = "Rs50 Vision - q to quit, i inspector, +/- threshold"
+WINDOW = "Rs50 Vision"
 MAX_CONSECUTIVE_INFERENCE_ERRORS = 30
 
 
@@ -147,7 +147,8 @@ def run(argv: list[str] | None = None) -> int:
                 continue
 
             result = None
-            banner, ok_state = "Searching for Rs.50 note...", False
+            sym = currency()
+            banner, ok_state, is_error = f"Searching for a {sym}50 note...  show one to the camera", False, False
             shown = None
             decisions = []
             try:
@@ -158,7 +159,7 @@ def run(argv: list[str] | None = None) -> int:
             except (InferenceError, InvalidImageError) as exc:
                 inference_errors += 1
                 consecutive_errors += 1
-                banner = f"INFERENCE ERROR: {exc}"[:90]
+                banner, is_error = f"INFERENCE ERROR: {exc}"[:90], True
                 log.error("Inference failed: %s", exc)
                 if consecutive_errors >= MAX_CONSECUTIVE_INFERENCE_ERRORS:
                     print("error: inference keeps failing; aborting.", file=sys.stderr)
@@ -167,7 +168,7 @@ def run(argv: list[str] | None = None) -> int:
             processed += 1
             if shown is not None:
                 detected_frames += 1
-                banner, ok_state = f"Rs.50 DETECTED  score {shown.score:.2f}", True
+                banner, ok_state = f"{sym}50 DETECTED     confidence {shown.score:.2f}", True
             elif confirmer.enabled and confirmer.state.startswith("confirming") and any(d.accepted for d in decisions):
                 banner = f"Confirming... {confirmer.state}"
 
@@ -185,18 +186,17 @@ def run(argv: list[str] | None = None) -> int:
                 recent.append(now - t_prev)
                 t_prev = now
                 fps = 1.0 / statistics.fmean(recent) if recent else 0.0
-                hud = [
-                    f"threshold {threshold:.2f} [{threshold_note}]",
-                    f"inference {infers[-1]:.1f} ms | {fps:.1f} fps" if infers else "inference n/a",
-                ]
+                draw_header(out, threshold, infers[-1] if infers else None, fps,
+                            validated=not threshold_note.startswith("NOT VALIDATED"))
+                hud = []
                 if confirmer.enabled:
                     hud.append(f"temporal: {confirmer.state}")
                 if inspector:
                     top = max((d for d in decisions), key=lambda d: d.candidate.score, default=None)
-                    hud.append("top: none" if top is None else
-                               f"top raw score {top.candidate.score:.2f} -> {top.reason}")
+                    hud.append("inspector: no candidates" if top is None else
+                               f"inspector: top raw score {top.candidate.score:.2f} -> {top.reason}")
                 draw_hud(out, hud)
-                draw_status_banner(out, banner, ok_state)
+                draw_banner(out, banner, ok_state, error=is_error)
                 cv2.imshow(WINDOW, out)
                 window_ready = True
                 key = cv2.waitKey(1) & 0xFF
