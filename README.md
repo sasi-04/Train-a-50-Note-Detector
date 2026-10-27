@@ -9,16 +9,16 @@ YOLOv8n is trained on the developer's own phone photographs, exported to **ONNX*
 python test.py --model model.onnx
 ```
 
-> **Status (read first).** `model.onnx` (YOLOv8n, 480 px, 12.7 MB) is trained on **117 of the developer's own phone
-> captures** (51 of the new ₹50 from *one physical note*, front and back; one note each of ₹10/20/100/200/500 as
-> negatives; 5 no-note frames). That is a **small, narrow dataset**, so expect misses and the occasional false alarm,
-> especially for dim light, tilted or sideways notes, and other denominations held in hand (not in the data).
+> **Status (read first).** `model.onnx` (YOLOv8n, 480 px, 12.7 MB) is trained on **738 of the developer's own captures**:
+> 117 phone/scanner images plus **621 frames from the developer's webcam** (the same kind of camera the demo uses): 156 boxed
+> images of the new ₹50 (**one physical note**, front/back/sideways), ₹10/₹20/₹100/₹200/₹500 and no-note scenes (room, people,
+> a blue-green window) as negatives. The data are still **narrow** (one person, one copy of each note, a few rooms).
 >
-> Measured honestly (details and caveats in [docs/EVALUATION.md](docs/EVALUATION.md)): the *evaluation* model, trained
-> without the held-out images, found 6/6 held-out ₹50 backs but only 1/8 held-out fronts (dark, rotated close-ups),
-> and 1 of 15 held-out negative images (a ₹20) was labelled ₹50. The *shipped* model was then retrained on all
-> images, so no held-out number exists for it. A 150-frame live webcam run with no note shown raised 0 false ₹50s.
-> A live positive test with real notes on your camera has **not** been done by the developer tooling.
+> Measured honestly on a **held-out webcam session** (details and caveats in [docs/EVALUATION.md](docs/EVALUATION.md)): the
+> evaluation model labelled **0 of 167** non-₹50 frames as ₹50 (₹10/20/100/200/500, faces, paper, phone, window; true rate
+> could still be up to ~2 %) and found **23 of 36 (64 %)** of the ₹50 frames (blurred, backlit and partly hidden ones are
+> missed). The *shipped* model was then fine-tuned on all images, so no held-out number exists for it. A 200-frame live webcam
+> run with no note shown raised 0 false ₹50s. Expect some misses; hold the note steady and well lit.
 > Full audit: [docs/ACCEPTANCE_REPORT.md](docs/ACCEPTANCE_REPORT.md).
 
 ## What you should see when you run it
@@ -82,10 +82,10 @@ python test.py --help
 Exit codes: 0 ok · 2 bad arguments · 3 model missing/unloadable · 4 camera problem · 5 repeated inference failure.
 A failed inference is shown as an error banner and never as "no detection" or a ₹50.
 
-**Operating threshold.** `configs/inference.yaml` holds `0.54`, selected by `scripts/evaluate.py --select-threshold` on the
-**validation** split of the evaluation model (no false ₹50 on its 22 negatives, 13/13 targets found; the FP-free plateau
-was only 0.45–0.62 wide). The shipped model reuses that value. A higher threshold reduces false positives but misses more
-genuine notes: `--threshold 0.45` is more sensitive, `--threshold 0.65` stricter. Trade-off curve:
+**Operating threshold.** `configs/inference.yaml` holds `0.46`, selected by `scripts/evaluate.py --select-threshold` on the
+**validation** webcam session of the evaluation model (0 false ₹50 on 171 negative images, recall 86–90 %; the false-alarm-free
+range starts at 0.41, so 0.46 sits inside it with margin). The shipped model reuses that value. A higher threshold reduces false
+positives but misses more genuine notes: `--threshold 0.40` is more sensitive, `--threshold 0.60` stricter. Trade-off curve:
 `reports/threshold_analysis_val.png`, `reports/threshold_sweep_val.csv`. Press `+`/`-` while running to adjust live.
 
 ## Complete workflow: photos → model → evaluation
@@ -136,12 +136,14 @@ dataset, no banknotes) are downloaded automatically by Ultralytics on first use;
 
 ### Making it work on *your* webcam (recommended)
 
-The photos used so far are phone/scanner captures; a webcam looks different (softer, colour cast, other lighting), and
-a model trained on the former will under-score notes on the latter. Record guided webcam sessions (about 4 minutes each):
+A webcam looks different from a phone (softer, colour cast, other lighting): the first model, trained on phone/scanner images
+only, scored a real note at 0.33 and a window at 0.69. Webcam frames fixed that, so they are included (sessions 1–3). To add
+more, record guided sessions (about 4 minutes each):
 
 ```bash
 python scripts/collect_webcam.py --session webcam_s01 --split train     # prompts: ₹50 front, back, sideways, ₹10 ... ₹500, no note
-python scripts/collect_webcam.py --session webcam_s02 --split test      # a second sitting, kept for an honest check
+python scripts/collect_webcam.py --session webcam_s02 --split val       # a second sitting, used to choose the threshold
+python scripts/collect_webcam.py --session webcam_s03 --split test      # a third, kept for an honest final check
 python scripts/propose_boxes.py                                         # boxes for the ₹50 frames; open reports/box_review/sheet_*.jpg
 python scripts/propose_boxes.py --accept --exclude 4,17 --drop-rejected # list the tiles with a wrong box
 python scripts/validate_dataset.py                                      # then train / export / evaluate as above
@@ -164,7 +166,7 @@ Each label line: `0 cx cy w h`, normalised to [0,1]; class `0 = fifty_rupee_note
 ## Tests
 
 ```bash
-pytest -q          # 114 tests, ~35 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
+pytest -q          # 115 tests, ~30 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
 ```
 
 Tests that use fixture or random-weight ONNX models verify *mechanics* (loading, decoding, coordinate mapping,
