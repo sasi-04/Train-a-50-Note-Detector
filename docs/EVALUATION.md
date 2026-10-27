@@ -1,73 +1,76 @@
 # Evaluation methodology and results
 
-**Read this first:** the dataset is tiny and unusually structured (details below). The numbers are an honest
-*stress sample*, not a statistically reliable estimate of how the model behaves on a reviewer's webcam.
+**Read this first.** The data come from one person, one physical copy of each note and a few rooms. The numbers below are an
+honest sample for this setup; they are *not* a promise about a reviewer's webcam, notes or lighting.
 
-## Data actually used (117 images, `reports/dataset_audit.md`)
+## Data actually used (738 images, `reports/dataset_audit.md`)
 
 | source | images | what it is |
 |---|---|---|
-| scanner-app PDF #1 | 72 | one genuine note per denomination (₹10/20/50/100/200/500), tight crops, ≈15 clusters of near-identical shots (6 of them on a blue table) |
-| scanner-app PDFs #2–#4 | 45 | hand-held frames of the new ₹50 (40 images: face-to-camera, close-ups, front and back) + 5 frames with no note |
+| scanner-app PDF #1 | 72 | one genuine note per denomination (₹10/20/50/100/200/500), tight crops, ~15 clusters of near-identical shots |
+| scanner-app PDFs #2–#4 | 45 | hand-held frames of the new ₹50 (40) + 5 frames with no note |
+| **webcam sessions 1–3** (`scripts/collect_webcam.py`) | 621 | frames from the *deployment webcam*: ₹50 front/back/sideways (105 hand-boxed), ₹10/20/100/200/500, room/people, blue-green things (window, clothes) |
 
-Only **11 + 40 = 51 target images** exist, from one physical ₹50 note. Lighting/angle metadata is "unknown" for all of them, so
-"dim lighting" and "angled" scenarios are **NOT TESTED**. There are no photos of other denominations held in hand, and only
-5 non-note frames, all of one person/room.
+Total ₹50 targets: 11 + 40 + 105 = 156 boxed images from **one physical ₹50 note**. Lighting/angle metadata is "unknown", so
+"dim lighting" and "angled" scenarios are **NOT TESTED** as separate groups. Webcam frames show the developer and bystanders.
+They are supplementary data from the same camera the demo uses; the first 117 images are the phone/scanner captures.
+
+## Why webcam data were added
+
+The first model (trained only on phone/scanner captures) failed live: a window scored 0.60–0.69 as "₹50" while a real note held
+to the webcam scored 0.33. See the commit history for the screenshots-driven fixes (shape sanity filter, webcam collection).
 
 ## Protocol
 
-* Whole near-duplicate clusters / capture sessions are assigned to one split (`dataset/metadata/*.yaml` documents each choice);
-  `validate_dataset.py` found and forced the removal of one real cross-split leak (hand-held frames A098/A099 vs B003…).
-  - train: 45 images · val: 35 (13 target) · test: 29 (14 target, 15 negative) *for the evaluation model*.
-* Evaluation model `rs50_split` = YOLOv8n trained only on the train split. **Threshold chosen on val only**:
-  0.54 (rule 1, FP-free and 100 % recall plateau 0.45–0.62; it is a narrow plateau).
-* Test split evaluated **once** with that frozen threshold (`reports/eval_test.md`, `reports/stress_val.md`).
-* **Shipped model `rs50_final`** = same recipe trained on *all* 117 images (`train.py --final-fit`). Because it has seen the
-  val/test images, **no held-out metric exists for it**; the threshold 0.54 was carried over from the evaluation model.
+* Whole sessions / near-duplicate clusters go to one split; `validate_dataset.py` (256-bit dHash) checks for cross-split leakage.
+  - train 335 images · **val 200** (29 target) · **test 203** (36 target); webcam session 1 → train, **session 2 → val**,
+    **session 3 → test**, plus the earlier scan splits (`dataset/metadata/*.yaml`).
+* **Evaluation model** `rs50_split`: YOLOv8n, COCO-pretrained, trained 40 epochs on the train split only.
+* **Threshold chosen on val only**: 0.46. Rule: among thresholds with 0 false-alarm negative images and recall ≥ 0.80, take the
+  middle of those within 0.05 recall of the best. (First pick, 0.41, was a knife edge — 0.40 already had a false alarm — so the
+  rule was changed *before* looking at the test split.)
+* **Test split evaluated once** with the frozen threshold (`reports/eval_test.md`).
+* **Shipped model** `rs50_final`: the evaluation model fine-tuned for 12 epochs on **all 738 images** (`train.py --final-fit --init`).
+  It has seen val/test images, so **no held-out score exists for it**; threshold 0.46 is carried over.
 
-## Results of the evaluation model (held-out)
+## Held-out results (evaluation model, threshold 0.46, IoU 0.5)
 
-Definitions are in the section below. IoU 0.5, threshold 0.54, CPU i5-7300U, OpenCV 5.0.0.
+| split | ₹50 images found | negative images labelled ₹50 |
+|---|---|---|
+| val (29 target / 171 negative) | 26/29 at 0.41; 25/29 at 0.5 (recall 86–90 %) | **0 / 171** (95 % CI upper 2.2 %) |
+| **test** (36 target / 167 negative) | **23 / 36 (63.9 %)**; AP@0.5 = 0.92 | **0 / 167** (95 % CI upper 2.2 %) |
 
-| split | target images found | missed | negative images with a false ₹50 | detection-level FP |
-|---|---|---|---|---|
-| val (selection split) | 13 / 13 | 0 | 0 / 22 (95 % CI upper 14.9 %) | 0 |
-| **test (final)** | **7 / 14** (50 %) | 7 | **1 / 15** (6.7 %, CI upper 29.8 %) | 8 |
+Test negatives, all 0 false ₹50: ₹10 0/23, ₹20 0/31, ₹100 0/23, ₹200 0/29, ₹500 0/23, no-note frames 0/38 (including the window
+and blue-green clothing). Test targets by side: back 6/6, front 4/8, side-unknown 13/22. Session `webcam_s03` alone: 13/22 found,
+0/152 false alarms.
 
-Test, by side: **back 6 / 6 found**, **front 1 / 8 found** (the 7 misses are dark, rotated, frame-filling front close-ups of
-session `hand_b_close`, a view the evaluation model never saw in training). Test negatives: ₹10 0/1, ₹20 **1/8** (a ₹20 on the
-blue table scored above 0.54), ₹200 0/6; ₹100, ₹500, objects/backgrounds **NOT TESTED on the test split** (the held-out
-sides of ₹100/₹500 are in val: 0/8 and 0/5, max false score 0.45 and 0.34).
-
-Interpretation: front-side recall on an unseen *kind of view* is poor, and one ₹20 was mistaken for a ₹50. Both results
-point to the same fix: more varied photos (lighting, tilt, distance, other denominations in hand, cluttered scenes). The shipped
-model has seen those views, which is why its quality on *new* conditions is unknown.
+Interpretation: the model almost never calls something else a ₹50 (its previous main problem), but it **misses roughly a third of
+₹50 frames in a new, bright, backlit session**. AP 0.92 means the real notes mostly rank above everything else; the 0.46
+threshold is conservative for that session (some misses score 0.3–0.45). The threshold was **not** retuned on test.
+Misses are mostly motion-blurred, strongly backlit or partially hidden frames.
 
 ## Shipped model: what was measured
 
-* ONNX export validated through the OpenCV path (`reports/onnx_validation.md`, PASS; PyTorch parity ≤ 0.001 px).
-* Live webcam smoke test results: see `docs/ACCEPTANCE_REPORT.md` (false-alarm rate on whatever the camera saw, no notes shown).
-* No claim is made about recall on a reviewer's notes.
+* ONNX export validated through the OpenCV path (`reports/onnx_validation.md`: PASS; PyTorch parity ≤ 0.001 px).
+* **Live, no note shown, 200 webcam frames: 0 accepted ₹50** (`reports/webcam_smoke.json`), median 83 ms inference / 87 ms pipeline
+  on this 2-core CPU (≈ 11 FPS).
+* On its own training images: 55/55 targets, 0/280 false ₹50 (`reports/final_on_train/`): an optimistic upper bound only.
+* A live *positive* test with real notes held in many poses was done by the developer by hand, not recorded as a metric.
 
 ## Definitions
 
-* **Accepted detection:** target-class candidate with score ≥ threshold after NMS (IoU 0.45).
-* **Detection level:** accepted detection is **TP** if it matches an unmatched ground-truth box at IoU ≥ 0.5 (greedy by score);
-  otherwise **FP**; unmatched ground-truth boxes are **FN**. Precision, recall, F1 follow.
-* **Image level:** *positive image* = has a target box; *negative image* = none. A negative image is a **false-positive image**
-  if it has ≥ 1 accepted detection. Negative-image FP rate = FP images ÷ negative images, always printed with its denominator and a
-  95 % Wilson interval (0 of 10 is compatible with a true rate up to ≈ 28 %).
-* **AP@0.5:** all-point interpolated over all scores.
-* **Latency:** per image on the evaluating machine; forward pass and full pipeline (camera/display excluded).
-* Scores are detector confidences, **not calibrated probabilities**.
+* **Accepted detection:** target-class candidate that passes the shape check (not a hairline/speck; aspect ≤ 4.5; short side ≥ 5 % of
+  the short image side), has score ≥ threshold, after NMS (IoU 0.45).
+* **Detection level:** an accepted detection is **TP** if it matches an unmatched ground-truth box at IoU ≥ 0.5 (greedy by score);
+  otherwise **FP**; unmatched ground-truth boxes are **FN**.
+* **Image level:** a *negative image* is a **false-positive image** if it has ≥ 1 accepted detection. Negative-image FP rate = FP
+  images ÷ negative images, always printed with its denominator and a 95 % Wilson interval (0 of 167 allows a true rate up to
+  ≈ 2 %).
+* **AP@0.5:** all-point interpolated over all scores. Scores are detector confidences, **not calibrated probabilities**.
+* **Frames from one capture are strongly correlated** (consecutive webcam frames), so the effective sample is smaller than the
+  image counts suggest.
 
-## Threshold rule
-
-Rule 1: among thresholds with negative-image FP rate ≤ 0 and recall ≥ 0.80, take the highest recall; if several tie, use the
-**middle** of the tied range (not its edge, which would leave no margin). Fallback rule 2 (F0.5) is reported loudly when rule 1 is
-unreachable. `evaluate.py` refuses `--select-threshold` on test/train.
-
-## Temporal confirmation and any second stage
+## Temporal confirmation and second stage
 
 Not credited in any metric: evaluation uses raw per-frame decisions. `--confirm-frames N` only affects the live display. No
-second-stage verifier exists, so no ablation is claimed.
+second-stage verifier exists.
