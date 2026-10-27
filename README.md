@@ -29,8 +29,8 @@ A window titled *Rs50 Vision* opens on your webcam.
   detector's **confidence score** (not a calibrated probability), and a green banner *Rs.50 DETECTED*.
 * **No target / another note / an object:** no box, grey banner *Searching for Rs.50 note...*.
 * Header bar: the active threshold (marked *unvalidated* if it was not chosen on validation data), inference time and
-  FPS measured live. A detection also has to have a plausible banknote shape (not a hairline strip or a speck), a rule
-  fixed from the note's physical proportions.
+  FPS measured live. A detection also has to have a plausible banknote shape (not a hairline strip or a speck), a simple rule
+  from the note's physical proportions. It does not stop large note-shaped false alarms (see the webcam section below).
 * Keys: `q` or `Esc` quit · `i` decision inspector (shows rejected candidates, their raw score and why they were
   rejected) · `+` / `-` change the threshold live.
 
@@ -164,7 +164,7 @@ Each label line: `0 cx cy w h`, normalised to [0,1]; class `0 = fifty_rupee_note
 ## Tests
 
 ```bash
-pytest -q          # 112 tests, ~40 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
+pytest -q          # 114 tests, ~35 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
 ```
 
 Tests that use fixture or random-weight ONNX models verify *mechanics* (loading, decoding, coordinate mapping,

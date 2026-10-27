@@ -16,7 +16,8 @@ IMPLAUSIBLE_SHAPE = "implausible_shape"
 
 # Geometry of a banknote seen by a camera. A Rs.50 is 135x66 mm (aspect 2.05); perspective, rotation and
 # partial occlusion stretch that, but never to a hairline strip or a speck. These limits are fixed from the
-# physical object, not tuned on evaluation images (added after a live false positive on a thin window frame).
+# physical object, not tuned on evaluation images. It is only a sanity net: it does NOT stop large note-shaped
+# false positives such as a blue-green window (those need webcam negatives in the training data).
 MIN_BOX_FRAC = 0.05   # shorter box side >= 5% of the shorter frame side
 MAX_ASPECT = 4.5      # longer side / shorter side
 

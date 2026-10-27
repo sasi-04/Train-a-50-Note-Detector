@@ -16,7 +16,7 @@ def test_accept_reject_reasons():
 
 
 def test_hairline_strip_is_rejected_as_implausible_shape():
-    # the live false positive: a 1-px-wide, full-height "box" on a window frame, score above threshold
+    # a hairline, full-height box with a score above the threshold can never be a banknote
     strip = Candidate(838, 0, 842, 700, 0.57, 0)
     d = decide([strip], 0.5, frame_w=1280, frame_h=720)[0]
     assert not d.accepted and d.reason == "implausible_shape"
