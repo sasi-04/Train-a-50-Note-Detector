@@ -12,6 +12,21 @@ ACCEPTED = "accepted"
 BELOW_THRESHOLD = "below_threshold"
 WRONG_CLASS = "wrong_class"
 INVALID_BOX = "invalid_box"
+IMPLAUSIBLE_SHAPE = "implausible_shape"
+
+# Geometry of a banknote seen by a camera. A Rs.50 is 135x66 mm (aspect 2.05); perspective, rotation and
+# partial occlusion stretch that, but never to a hairline strip or a speck. These limits are fixed from the
+# physical object, not tuned on evaluation images (added after a live false positive on a thin window frame).
+MIN_BOX_FRAC = 0.05   # shorter box side >= 5% of the shorter frame side
+MAX_ASPECT = 4.5      # longer side / shorter side
+
+
+def plausible_shape(box: tuple[float, float, float, float], frame_w: int, frame_h: int,
+                    min_frac: float = MIN_BOX_FRAC, max_aspect: float = MAX_ASPECT) -> bool:
+    w, h = box[2] - box[0], box[3] - box[1]
+    if w <= 0 or h <= 0 or frame_w <= 0 or frame_h <= 0:
+        return False
+    return min(w, h) >= min_frac * min(frame_w, frame_h) and max(w, h) / min(w, h) <= max_aspect
 
 
 @dataclass(frozen=True)
@@ -27,6 +42,8 @@ def decide(
     target_class_id: int = 0,
     frame_w: int | None = None,
     frame_h: int | None = None,
+    min_box_frac: float = MIN_BOX_FRAC,
+    max_aspect: float = MAX_ASPECT,
 ) -> list[Decision]:
     """Label every candidate accepted/rejected with a machine-readable reason."""
     out: list[Decision] = []
@@ -37,6 +54,8 @@ def decide(
             frame_h is not None and c.y1 >= frame_h
         ):
             out.append(Decision(c, False, INVALID_BOX))
+        elif frame_w and frame_h and not plausible_shape(c.box, frame_w, frame_h, min_box_frac, max_aspect):
+            out.append(Decision(c, False, IMPLAUSIBLE_SHAPE))
         elif c.score < threshold:
             out.append(Decision(c, False, BELOW_THRESHOLD))
         else:

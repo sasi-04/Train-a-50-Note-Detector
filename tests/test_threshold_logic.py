@@ -15,6 +15,23 @@ def test_accept_reject_reasons():
     assert len(accepted(ds)) == 1
 
 
+def test_hairline_strip_is_rejected_as_implausible_shape():
+    # the live false positive: a 1-px-wide, full-height "box" on a window frame, score above threshold
+    strip = Candidate(838, 0, 842, 700, 0.57, 0)
+    d = decide([strip], 0.5, frame_w=1280, frame_h=720)[0]
+    assert not d.accepted and d.reason == "implausible_shape"
+
+
+def test_plausible_shapes_for_a_note_in_either_orientation():
+    from detector.thresholding import plausible_shape
+    assert plausible_shape((100, 100, 500, 300), 1280, 720)      # landscape note, aspect 2
+    assert plausible_shape((100, 100, 300, 500), 1280, 720)      # sideways note
+    assert plausible_shape((100, 100, 400, 340), 1280, 720)      # near-square (close-up, tilted)
+    assert not plausible_shape((100, 100, 130, 130), 1280, 720)  # speck: < 5% of the short side
+    assert not plausible_shape((0, 0, 1280, 120), 1280, 720)     # long band, aspect > 4.5
+    assert not plausible_shape((10, 10, 10, 90), 1280, 720)      # zero width
+
+
 def test_threshold_boundary_is_inclusive():
     assert decide([cand(0.5)], 0.5)[0].accepted
 

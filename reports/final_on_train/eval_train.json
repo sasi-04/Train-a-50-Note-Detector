@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-26T13:57:09+00:00",
+  "generated_utc": "2026-10-27T04:21:13+00:00",
   "split": "train",
   "threshold": 0.54,
   "threshold_status": "from configs/inference.yaml",
@@ -464,10 +464,10 @@
   },
   "latency": {
     "n": 53,
-    "inference_ms_median": 80.59269999648677,
-    "inference_ms_p95": 111.00098000024445,
-    "pipeline_ms_median": 85.80220000294503,
-    "pipeline_ms_p95": 117.12828000163427,
-    "throughput_fps_pipeline": 11.654712815821465
+    "inference_ms_median": 55.72379998920951,
+    "inference_ms_p95": 60.505160002503544,
+    "pipeline_ms_median": 59.067900001537055,
+    "pipeline_ms_p95": 64.94121999712661,
+    "throughput_fps_pipeline": 16.929669075318035
   }
 }

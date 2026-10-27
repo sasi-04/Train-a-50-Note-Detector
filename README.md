@@ -28,8 +28,9 @@ A window titled *Rs50 Vision* opens on your webcam.
 * **Target note in view (front or back):** a green box with the label `₹50 0.87`, where the number is the
   detector's **confidence score** (not a calibrated probability), and a green banner *Rs.50 DETECTED*.
 * **No target / another note / an object:** no box, grey banner *Searching for Rs.50 note...*.
-* Top-left HUD: the active threshold (marked **NOT VALIDATED** until it was chosen on validation data),
-  inference time and FPS measured live.
+* Header bar: the active threshold (marked *unvalidated* if it was not chosen on validation data), inference time and
+  FPS measured live. A detection also has to have a plausible banknote shape (not a hairline strip or a speck), a rule
+  fixed from the note's physical proportions.
 * Keys: `q` or `Esc` quit · `i` decision inspector (shows rejected candidates, their raw score and why they were
   rejected) · `+` / `-` change the threshold live.
 
@@ -132,6 +133,21 @@ python test.py --model model.onnx
 `train.py` refuses to start until the audit passes (both sides of the target, every required negative
 denomination, valid labels, leak-free session splits). Pretrained weights (`yolov8n.pt`, trained on the COCO
 dataset, no banknotes) are downloaded automatically by Ultralytics on first use; this is the only download.
+
+### Making it work on *your* webcam (recommended)
+
+The photos used so far are phone/scanner captures; a webcam looks different (softer, colour cast, other lighting), and
+a model trained on the former will under-score notes on the latter. Record guided webcam sessions (about 4 minutes each):
+
+```bash
+python scripts/collect_webcam.py --session webcam_s01 --split train     # prompts: ₹50 front, back, sideways, ₹10 ... ₹500, no note
+python scripts/collect_webcam.py --session webcam_s02 --split test      # a second sitting, kept for an honest check
+python scripts/propose_boxes.py                                         # boxes for the ₹50 frames; open reports/box_review/sheet_*.jpg
+python scripts/propose_boxes.py --accept --exclude 4,17 --drop-rejected # list the tiles with a wrong box
+python scripts/validate_dataset.py                                      # then train / export / evaluate as above
+```
+
+Hold **only** the note named on screen: frames of other notes and of "no note" are saved as negatives.
 
 ### Dataset layout and annotation format
 

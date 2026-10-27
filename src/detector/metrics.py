@@ -22,7 +22,7 @@ import numpy as np
 
 from .dataset import DatasetPaths, parse_label_file
 from .postprocessing import iou_one_to_many
-from .thresholding import SweepPoint
+from .thresholding import SweepPoint, plausible_shape
 
 
 @dataclass
@@ -40,7 +40,12 @@ class ImageRecord:
         return len(self.gt) > 0
 
     def target_scores(self, target_class: int = 0) -> list[float]:
-        return [s for _, s, c in self.preds if c == target_class]
+        """Scores of target-class candidates that pass the same shape check as the deployed decision."""
+        return [s for b, s, c in self.preds if c == target_class and self._ok(b)]
+
+    def _ok(self, box) -> bool:
+        w, h = self.image_wh
+        return True if not (w and h) else plausible_shape(box, w, h)
 
 
 def wilson_interval(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
@@ -84,7 +89,8 @@ def collect_predictions(detector, rows: Sequence[dict], paths: DatasetPaths,
 
 def match(rec: ImageRecord, threshold: float, iou_thr: float = 0.5, target_class: int = 0) -> tuple[int, int, int]:
     """Return (tp, fp, fn) detections for one image at ``threshold``."""
-    preds = sorted((p for p in rec.preds if p[2] == target_class and p[1] >= threshold), key=lambda p: -p[1])
+    preds = sorted((p for p in rec.preds if p[2] == target_class and p[1] >= threshold and rec._ok(p[0])),
+                   key=lambda p: -p[1])
     used = np.zeros(len(rec.gt), bool)
     tp = 0
     for box, _, _ in preds:
@@ -122,7 +128,7 @@ def average_precision(records: Sequence[ImageRecord], iou_thr: float = 0.5) -> f
     dets = []
     for r in records:
         used = np.zeros(len(r.gt), bool)
-        for box, s, c in sorted((p for p in r.preds if p[2] == 0), key=lambda p: -p[1]):
+        for box, s, c in sorted((p for p in r.preds if p[2] == 0 and r._ok(p[0])), key=lambda p: -p[1]):
             hit = 0
             if len(r.gt):
                 ious = iou_one_to_many(np.asarray(box), r.gt)

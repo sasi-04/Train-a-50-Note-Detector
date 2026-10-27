@@ -1,6 +1,6 @@
 # Evaluation: `train` split
 
-- Generated: 2026-10-26T13:57:09+00:00
+- Generated: 2026-10-27T04:21:13+00:00
 - Model: `model.onnx` sha256 `c4cc2902700818cb` (imgsz 480)
 - Dataset manifest hash: `258f672f30b057e4`; images in this split: 53
 - Threshold: **0.54** (from configs/inference.yaml); IoU for matching: 0.5
@@ -66,7 +66,7 @@
 
 ## Latency (this machine, per image, includes decode)
 
-- Inference (forward) median 80.6 ms, p95 111.0 ms
-- Full pipeline (pre+forward+post) median 85.8 ms, p95 117.1 ms (~11.7 FPS excluding camera/display)
+- Inference (forward) median 55.7 ms, p95 60.5 ms
+- Full pipeline (pre+forward+post) median 59.1 ms, p95 64.9 ms (~16.9 FPS excluding camera/display)
 
 Scores are detector confidences, not calibrated probabilities. Rates from few images are unreliable; see the CI column.
