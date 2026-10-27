@@ -12,12 +12,12 @@
    a true rate of tens of percent (see the Wilson intervals in the reports). Rates are only meaningful with the denominators shown.
 5. **Distribution shift.** Different cameras, rooms, note wear or lighting than your sessions can degrade results; the
    reviewer's webcam and notes are different from the developer's.
-6. **CPU speed.** On the 2-core development laptop the shipped model runs ≈ 91 ms/frame end to end (≈ 11 FPS) at 480 px; faster CPUs
+6. **CPU speed.** On the 2-core development laptop the shipped model runs ≈ 87 ms/frame end to end (≈ 11 FPS) at 480 px; faster CPUs
    will do better. "Real-time" is not claimed beyond what the HUD measures on the viewing machine.
-13. **Boxes were proposed, not hand-drawn.** The 51 target boxes came from colour/segmentation proposals that were visually reviewed
-    (some are a few percent loose). Labelled frames come from near-duplicate bursts, so the effective number of distinct views is
-    far smaller than the image count.
-14. **Privacy.** Hand-held frames show the developer's face and a lanyard; wide shots may show part of an ID card.
+13. **Box provenance.** 51 of the 156 ₹50 boxes came from colour-segmentation proposals that were visually reviewed; the other 105
+    (webcam) were drawn by hand from grid views and verified by overlay. Some boxes are a few percent loose. Labelled frames come from
+    near-duplicate bursts, so the effective number of distinct views is far smaller than the image count.
+14. **Privacy.** Webcam and hand-held frames show the developer's face, a lanyard, and bystanders in the background.
 7. **Scenes with several notes.** Multiple or overlapping ₹50 notes in one frame were not studied.
 8. **Platform coverage.** Tested on Windows 10 / Python 3.14 only. Linux/macOS paths and fonts are handled but untested.
 9. **Temporal filter is a display aid.** It adds latency and is not counted in any metric.
