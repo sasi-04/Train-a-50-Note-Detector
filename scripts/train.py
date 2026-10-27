@@ -56,6 +56,9 @@ def main() -> int:
     ap.add_argument("--allow-small", action="store_true", help="skip the coverage gate (smoke tests only)")
     ap.add_argument("--allow-no-objects", action="store_true",
                     help="train without object/background negatives (recorded in run_info.json)")
+    ap.add_argument("--init", default=None, help="start from this checkpoint instead of configs/train.yaml `model` (fine-tuning)")
+    ap.add_argument("--set", action="append", default=[], metavar="KEY=VALUE",
+                    help="override any `train:` key, e.g. --set close_mosaic=3 --set lr0=0.002 (repeatable)")
     ap.add_argument("--final-fit", action="store_true",
                     help="train on ALL images (train+val+test) for the shipped model; Ultralytics 'val' is then "
                          "just a training-progress monitor and NO held-out metric from this run is valid")
@@ -66,6 +69,9 @@ def main() -> int:
     for k in ("epochs", "imgsz", "batch", "device"):
         if getattr(a, k) is not None:
             tr[k] = getattr(a, k)
+    for kv in a.set:
+        k, _, v = kv.partition("=")
+        tr[k] = yaml.safe_load(v)
     seed = a.seed if a.seed is not None else cfg.get("seed", 0)
     name = a.name or cfg.get("run_name", "rs50")
     dataset_root = Path(a.dataset or cfg.get("dataset", "dataset"))
@@ -100,7 +106,7 @@ def main() -> int:
     paths = DatasetPaths(dataset_root)
     data_yaml = write_data_yaml(paths, run_dir, a.final_fit)
 
-    model_src = cfg.get("model", "yolov8n.pt")
+    model_src = a.init or cfg.get("model", "yolov8n.pt")
     last = run_dir / "weights" / "last.pt"
     if a.resume:
         if not last.is_file():
