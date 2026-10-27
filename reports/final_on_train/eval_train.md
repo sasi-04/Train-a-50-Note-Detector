@@ -1,35 +1,35 @@
 # Evaluation: `train` split
 
-- Generated: 2026-10-27T04:21:13+00:00
-- Model: `model.onnx` sha256 `c4cc2902700818cb` (imgsz 480)
-- Dataset manifest hash: `258f672f30b057e4`; images in this split: 53
-- Threshold: **0.54** (from configs/inference.yaml); IoU for matching: 0.5
+- Generated: 2026-10-27T15:55:23+00:00
+- Model: `model.onnx` sha256 `ce5a6d1ce6373f26` (imgsz 480)
+- Dataset manifest hash: `c61ece36d59f192b`; images in this split: 335
+- Threshold: **0.46** (from configs/inference.yaml); IoU for matching: 0.5
 - Hardware: Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz, 4 logical cores, OpenCV 5.0.0
 
 > **Training split: metrics are optimistic (the model was trained on these images).**
 
 ## Overall
 
-- Detection level: TP 24, FP 0, FN 0; precision 100.0%, recall 100.0%, F1 1.000; AP@0.5 1.000 (all scores)
-- Image level: 24 positive / 29 negative images; missed positives 0; **negative images with a false ₹50: 0/29** (95% CI upper bound 11.7%)
+- Detection level: TP 55, FP 0, FN 0; precision 100.0%, recall 100.0%, F1 1.000; AP@0.5 1.000 (all scores)
+- Image level: 55 positive / 280 negative images; missed positives 0; **negative images with a false ₹50: 0/280** (95% CI upper bound 1.4%)
 - Image-level confusion matrix (rows actual, cols predicted):
 
 | | predicted ₹50 | predicted none |
 |---|---|---|
-| actual ₹50 | 24 | 0 |
-| actual none | 0 | 29 |
+| actual ₹50 | 55 | 0 |
+| actual none | 0 | 280 |
 
 ### By denomination
 
 | group | images | pos | neg | TP img | FN img | FP img | image recall | neg-image FP rate (95% CI upper) |
 |---|---|---|---|---|---|---|---|---|
-| 10 | 4 | 0 | 4 | 0 | 0 | 0 | n/a | 0/4 (0.0%, <= 49.0%) |
-| 100 | 7 | 0 | 7 | 0 | 0 | 0 | n/a | 0/7 (0.0%, <= 35.4%) |
-| 20 | 4 | 0 | 4 | 0 | 0 | 0 | n/a | 0/4 (0.0%, <= 49.0%) |
-| 200 | 5 | 0 | 5 | 0 | 0 | 0 | n/a | 0/5 (0.0%, <= 43.4%) |
-| 500 | 5 | 0 | 5 | 0 | 0 | 0 | n/a | 0/5 (0.0%, <= 43.4%) |
-| 50_new | 24 | 24 | 0 | 24 | 0 | 0 | 100.0% | n/a |
-| background | 4 | 0 | 4 | 0 | 0 | 0 | n/a | 0/4 (0.0%, <= 49.0%) |
+| 10 | 42 | 0 | 42 | 0 | 0 | 0 | n/a | 0/42 (0.0%, <= 8.4%) |
+| 100 | 45 | 0 | 45 | 0 | 0 | 0 | n/a | 0/45 (0.0%, <= 7.9%) |
+| 20 | 42 | 0 | 42 | 0 | 0 | 0 | n/a | 0/42 (0.0%, <= 8.4%) |
+| 200 | 43 | 0 | 43 | 0 | 0 | 0 | n/a | 0/43 (0.0%, <= 8.2%) |
+| 500 | 43 | 0 | 43 | 0 | 0 | 0 | n/a | 0/43 (0.0%, <= 8.2%) |
+| 50_new | 55 | 55 | 0 | 55 | 0 | 0 | 100.0% | n/a |
+| background | 65 | 0 | 65 | 0 | 0 | 0 | n/a | 0/65 (0.0%, <= 5.6%) |
 
 ### Target note by side
 
@@ -37,18 +37,19 @@
 |---|---|---|---|---|---|---|---|---|
 | 50_new/back | 4 | 4 | 0 | 4 | 0 | 0 | 100.0% | n/a |
 | 50_new/front | 20 | 20 | 0 | 20 | 0 | 0 | 100.0% | n/a |
+| 50_new/unknown | 31 | 31 | 0 | 31 | 0 | 0 | 100.0% | n/a |
 
 ### By lighting
 
 | group | images | pos | neg | TP img | FN img | FP img | image recall | neg-image FP rate (95% CI upper) |
 |---|---|---|---|---|---|---|---|---|
-| unknown | 53 | 24 | 29 | 24 | 0 | 0 | 100.0% | 0/29 (0.0%, <= 11.7%) |
+| unknown | 335 | 55 | 280 | 55 | 0 | 0 | 100.0% | 0/280 (0.0%, <= 1.4%) |
 
 ### By angle
 
 | group | images | pos | neg | TP img | FN img | FP img | image recall | neg-image FP rate (95% CI upper) |
 |---|---|---|---|---|---|---|---|---|
-| unknown | 53 | 24 | 29 | 24 | 0 | 0 | 100.0% | 0/29 (0.0%, <= 11.7%) |
+| unknown | 335 | 55 | 280 | 55 | 0 | 0 | 100.0% | 0/280 (0.0%, <= 1.4%) |
 
 ### By capture session
 
@@ -56,6 +57,7 @@
 |---|---|---|---|---|---|---|---|---|
 | hand_a | 20 | 16 | 4 | 16 | 0 | 0 | 100.0% | 0/4 (0.0%, <= 49.0%) |
 | scan_train | 33 | 8 | 25 | 8 | 0 | 0 | 100.0% | 0/25 (0.0%, <= 13.3%) |
+| webcam_s01 | 282 | 31 | 251 | 31 | 0 | 0 | 100.0% | 0/251 (0.0%, <= 1.5%) |
 
 ### Required scenarios
 
@@ -66,7 +68,7 @@
 
 ## Latency (this machine, per image, includes decode)
 
-- Inference (forward) median 55.7 ms, p95 60.5 ms
-- Full pipeline (pre+forward+post) median 59.1 ms, p95 64.9 ms (~16.9 FPS excluding camera/display)
+- Inference (forward) median 70.0 ms, p95 131.4 ms
+- Full pipeline (pre+forward+post) median 73.9 ms, p95 135.5 ms (~13.5 FPS excluding camera/display)
 
 Scores are detector confidences, not calibrated probabilities. Rates from few images are unreliable; see the CI column.
