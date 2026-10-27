@@ -157,6 +157,7 @@ def select_threshold(
     max_neg_fp_rate: float = 0.0,
     min_recall: float = 0.80,
     beta: float = 0.5,
+    recall_slack: float = 0.05,
 ) -> tuple[SweepPoint, str]:
     """Pick the operating point favouring false-positive avoidance.
 
@@ -170,12 +171,12 @@ def select_threshold(
     ok = [p for p in sweep if p.neg_images and p.neg_fp_rate <= max_neg_fp_rate and p.recall >= min_recall]
     if ok:
         top = max(p.recall for p in ok)
-        plateau = sorted((p for p in ok if p.recall == top), key=lambda p: p.threshold)
-        best = plateau[len(plateau) // 2]  # middle of the plateau: equal margin to both failure modes
+        plateau = sorted((p for p in ok if p.recall >= top - recall_slack), key=lambda p: p.threshold)
+        best = plateau[len(plateau) // 2]  # middle of the plateau: margin on both failure modes
         return best, (
-            f"rule 1: negative-image FP rate <= {max_neg_fp_rate:.3f} and recall >= {min_recall:.2f}; "
-            f"highest recall; the {len(plateau)} tied thresholds span {plateau[0].threshold:.2f}-{plateau[-1].threshold:.2f}, "
-            "the middle one is used (not the extreme) so it keeps margin on both sides"
+            f"rule 1: negative-image FP rate <= {max_neg_fp_rate:.3f} and recall >= {min_recall:.2f}; best recall {top:.3f}; "
+            f"{len(plateau)} thresholds within {recall_slack:.2f} recall of it span {plateau[0].threshold:.2f}-{plateau[-1].threshold:.2f}; "
+            "the middle one is used, not the edge, so a small shift in conditions does not flip it into false alarms"
         )
 
     def fbeta(p: SweepPoint) -> float:

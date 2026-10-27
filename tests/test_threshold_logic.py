@@ -95,6 +95,13 @@ def test_select_threshold_falls_back_when_constraints_unmet():
     assert why.startswith("rule 2") and best.threshold == 0.5
 
 
+def test_select_threshold_avoids_knife_edge_when_slightly_lower_recall_is_far_safer():
+    # best recall only at 0.41 (0.40 already has a false alarm); 0.5/0.6 lose a few points of recall but keep margin
+    pts = [sp(0.40, 26, 1, 3, 1), sp(0.41, 26, 0, 3, 0), sp(0.45, 26, 0, 3, 0), sp(0.50, 25, 0, 4, 0), sp(0.60, 23, 0, 6, 0)]
+    best, why = select_threshold(pts, 0.0, 0.8)
+    assert 0.45 <= best.threshold <= 0.50 and "middle" in why
+
+
 def test_select_threshold_ties_pick_middle_of_plateau_not_the_edge():
     pts = [sp(t / 100, 90, 0, 10, 0) for t in range(40, 95, 5)] + [sp(0.95, 50, 0, 50, 0)]
     best, why = select_threshold(pts)
