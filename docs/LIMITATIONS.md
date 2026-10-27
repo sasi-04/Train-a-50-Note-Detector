@@ -1,9 +1,10 @@
 # Limitations
 
-1. **Tiny, narrow dataset.** 117 images from one physical note per denomination, essentially one room/person, no lighting or angle
-   metadata, only 5 no-note frames and no other denominations held in hand. Held-out results were mixed (test: ₹50 back 6/6, front
-   1/8, one ₹20 mistaken for ₹50) and the *shipped* model was retrained on everything, so it has no held-out score. The threshold
-   (0.54) comes from a 13-target validation set with a narrow FP-free range (0.45–0.62).
+1. **Narrow dataset.** 738 images (117 phone/scanner + 621 webcam frames) of **one physical copy of each note**, one person, a few
+   rooms, no lighting/angle metadata; consecutive webcam frames are highly correlated, so the effective sample is much smaller.
+   Held-out webcam test: 0/167 non-₹50 images labelled ₹50 (true rate up to ≈ 2 %), but only 23/36 ₹50 frames found (blurred, backlit
+   or partly hidden ones are missed). The *shipped* model was fine-tuned on everything, so it has no held-out score. The threshold
+   (0.46) comes from one validation session (29 target frames).
 2. **Not an authentication system.** It localises a visual pattern. It cannot tell a genuine note from a good fake, and
    a high score is not evidence of authenticity.
 3. **Scores are not probabilities.** No calibration has been measured; do not read 0.87 as "87 % likely".
