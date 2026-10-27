@@ -14,11 +14,11 @@
   "display_label": "\u20b950",
   "preprocess": "letterbox pad=114, RGB, /255, NCHW float32",
   "source_checkpoint": "runs\\rs50_final\\weights\\best.pt",
-  "source_checkpoint_sha256": "03957db13ca8cea742432ace4c420a7ee125afcb7cadf6179e4a0e1ebcba26e3",
-  "onnx_sha256": "c4cc2902700818cbbecb635bb9162225428e7fc55f7fe68b39af54cb831ba6c4",
+  "source_checkpoint_sha256": "555332e60aa1779281615635ee538bcabe9d9e8380260f9650c65230b0e5fd2d",
+  "onnx_sha256": "ce5a6d1ce6373f262946db8da2053fad77aa508fc8292f5e9434592c883f7e99",
   "onnx_size_bytes": 12699632,
   "ultralytics": "8.4.189",
   "torch": "2.14.1+cpu",
   "onnx": "1.23.2",
-  "exported_utc": "2026-10-26T13:56:22+00:00"
+  "exported_utc": "2026-10-27T15:54:41+00:00"
 }
