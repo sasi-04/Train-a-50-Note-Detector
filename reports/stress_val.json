@@ -1,249 +1,268 @@
 {
   "split": "val",
-  "operating_threshold": 0.54,
-  "negative_images": 22,
+  "operating_threshold": 0.46,
+  "negative_images": 171,
   "by_category": {
     "10": {
-      "tested": 7,
+      "tested": 30,
       "false_positive_images_at_threshold": 0,
       "fp_rate_ci95": [
         0.0,
-        0.35433884297520657
+        0.113517091390478
       ],
       "fp_images_by_threshold": {
-        "0.25": 0,
+        "0.25": 4,
         "0.40": 0,
+        "0.46": 0,
         "0.50": 0,
-        "0.54": 0,
         "0.60": 0,
         "0.70": 0,
         "0.80": 0,
         "0.90": 0
       },
-      "max_false_score": 0.06737495213747025
+      "max_false_score": 0.30801165103912354
     },
     "100": {
-      "tested": 8,
+      "tested": 31,
       "false_positive_images_at_threshold": 0,
       "fp_rate_ci95": [
         0.0,
-        0.3244156195108769
+        0.11025900073475385
       ],
       "fp_images_by_threshold": {
-        "0.25": 1,
+        "0.25": 7,
         "0.40": 1,
+        "0.46": 0,
         "0.50": 0,
-        "0.54": 0,
         "0.60": 0,
         "0.70": 0,
         "0.80": 0,
         "0.90": 0
       },
-      "max_false_score": 0.4490800201892853
+      "max_false_score": 0.4095870852470398
+    },
+    "20": {
+      "tested": 23,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.14312112541726274
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 2,
+        "0.40": 0,
+        "0.46": 0,
+        "0.50": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.2801111936569214
     },
     "200": {
-      "tested": 1,
+      "tested": 23,
       "false_positive_images_at_threshold": 0,
       "fp_rate_ci95": [
         0.0,
-        0.7934567085261071
+        0.14312112541726274
       ],
       "fp_images_by_threshold": {
         "0.25": 0,
         "0.40": 0,
+        "0.46": 0,
         "0.50": 0,
-        "0.54": 0,
         "0.60": 0,
         "0.70": 0,
         "0.80": 0,
         "0.90": 0
       },
-      "max_false_score": 0.0
+      "max_false_score": 0.13505081832408905
     },
     "500": {
-      "tested": 5,
+      "tested": 28,
       "false_positive_images_at_threshold": 0,
       "fp_rate_ci95": [
         0.0,
-        0.43449149475208104
+        0.12064720365810762
       ],
       "fp_images_by_threshold": {
         "0.25": 1,
         "0.40": 0,
+        "0.46": 0,
         "0.50": 0,
-        "0.54": 0,
         "0.60": 0,
         "0.70": 0,
         "0.80": 0,
         "0.90": 0
       },
-      "max_false_score": 0.3417128026485443
+      "max_false_score": 0.259880393743515
     },
     "background": {
-      "tested": 1,
+      "tested": 36,
       "false_positive_images_at_threshold": 0,
       "fp_rate_ci95": [
         0.0,
-        0.7934567085261071
+        0.09642183044857634
       ],
       "fp_images_by_threshold": {
-        "0.25": 0,
+        "0.25": 7,
         "0.40": 0,
+        "0.46": 0,
         "0.50": 0,
-        "0.54": 0,
         "0.60": 0,
         "0.70": 0,
         "0.80": 0,
         "0.90": 0
       },
-      "max_false_score": 0.034966908395290375
+      "max_false_score": 0.3652535676956177
     }
   },
   "false_score_quantiles": {
-    "50": 0.03406132385134697,
-    "90": 0.21956062167882934,
-    "95": 0.3359336853027343,
-    "99": 0.42653290450572956,
-    "100": 0.4490800201892853
+    "50": 0.09603128582239151,
+    "90": 0.259880393743515,
+    "95": 0.32426466047763824,
+    "99": 0.3858047723770142,
+    "100": 0.4095870852470398
   },
   "hardest": [
     {
-      "image_id": "scan_val_100_back_0004",
+      "image_id": "webcam_s02_100_unknown_0011",
       "denomination": "100",
-      "max_score": 0.4490800201892853,
+      "max_score": 0.4095870852470398,
       "accepted_at_threshold": false,
       "needs_manual_review": true
     },
     {
-      "image_id": "scan_val_500_back_0004",
-      "denomination": "500",
-      "max_score": 0.3417128026485443,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_100_back_0003",
+      "image_id": "webcam_s02_100_unknown_0016",
       "denomination": "100",
-      "max_score": 0.22613045573234558,
+      "max_score": 0.3891964554786682,
       "accepted_at_threshold": false,
-      "needs_manual_review": false
+      "needs_manual_review": true
     },
     {
-      "image_id": "scan_val_100_back_0001",
+      "image_id": "webcam_s02_100_unknown_0015",
       "denomination": "100",
-      "max_score": 0.1604321151971817,
+      "max_score": 0.3843511939048767,
       "accepted_at_threshold": false,
-      "needs_manual_review": false
+      "needs_manual_review": true
     },
     {
-      "image_id": "scan_val_100_back_0002",
-      "denomination": "100",
-      "max_score": 0.13251914083957672,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_500_back_0003",
-      "denomination": "500",
-      "max_score": 0.09348884969949722,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_500_back_0002",
-      "denomination": "500",
-      "max_score": 0.07647285610437393,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_10_back_0002",
-      "denomination": "10",
-      "max_score": 0.06737495213747025,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_10_back_0001",
-      "denomination": "10",
-      "max_score": 0.06597535312175751,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_10_back_0005",
-      "denomination": "10",
-      "max_score": 0.04282067343592644,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "hand_b_face_background_na_0001",
+      "image_id": "webcam_s02_background_na_0008",
       "denomination": "background",
-      "max_score": 0.034966908395290375,
+      "max_score": 0.3652535676956177,
       "accepted_at_threshold": false,
       "needs_manual_review": false
     },
     {
-      "image_id": "scan_val_100_back_0007",
+      "image_id": "webcam_s02_100_unknown_0012",
       "denomination": "100",
-      "max_score": 0.033155739307403564,
+      "max_score": 0.35862740874290466,
       "accepted_at_threshold": false,
       "needs_manual_review": false
     },
     {
-      "image_id": "scan_val_10_back_0004",
-      "denomination": "10",
-      "max_score": 0.030964050441980362,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_10_back_0003",
-      "denomination": "10",
-      "max_score": 0.030612247064709663,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_10_front_0001",
-      "denomination": "10",
-      "max_score": 0.020048702135682106,
-      "accepted_at_threshold": false,
-      "needs_manual_review": false
-    },
-    {
-      "image_id": "scan_val_100_back_0006",
+      "image_id": "webcam_s02_100_unknown_0010",
       "denomination": "100",
-      "max_score": 0.016122762113809586,
+      "max_score": 0.3551784157752991,
       "accepted_at_threshold": false,
       "needs_manual_review": false
     },
     {
-      "image_id": "scan_val_10_back_0006",
+      "image_id": "webcam_s02_100_unknown_0004",
+      "denomination": "100",
+      "max_score": 0.3546234667301178,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_background_na_0009",
+      "denomination": "background",
+      "max_score": 0.350121408700943,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_background_na_0027",
+      "denomination": "background",
+      "max_score": 0.34051766991615295,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_10_unknown_0006",
       "denomination": "10",
-      "max_score": 0.01471290085464716,
+      "max_score": 0.30801165103912354,
       "accepted_at_threshold": false,
       "needs_manual_review": false
     },
     {
-      "image_id": "scan_val_100_back_0005",
+      "image_id": "webcam_s02_100_unknown_0021",
       "denomination": "100",
-      "max_score": 0.012244048528373241,
+      "max_score": 0.30773141980171204,
       "accepted_at_threshold": false,
       "needs_manual_review": false
     },
     {
-      "image_id": "scan_val_100_back_0008",
-      "denomination": "100",
-      "max_score": 0.0,
+      "image_id": "webcam_s02_10_unknown_0012",
+      "denomination": "10",
+      "max_score": 0.29991793632507324,
       "accepted_at_threshold": false,
       "needs_manual_review": false
     },
     {
-      "image_id": "scan_val_200_back_0001",
-      "denomination": "200",
-      "max_score": 0.0,
+      "image_id": "webcam_s02_background_na_0007",
+      "denomination": "background",
+      "max_score": 0.28642696142196655,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_background_na_0017",
+      "denomination": "background",
+      "max_score": 0.28019994497299194,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_20_unknown_0007",
+      "denomination": "20",
+      "max_score": 0.2801111936569214,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_20_unknown_0021",
+      "denomination": "20",
+      "max_score": 0.27479901909828186,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_10_unknown_0015",
+      "denomination": "10",
+      "max_score": 0.26200464367866516,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_500_unknown_0019",
+      "denomination": "500",
+      "max_score": 0.259880393743515,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_background_na_0024",
+      "denomination": "background",
+      "max_score": 0.25791025161743164,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_10_unknown_0022",
+      "denomination": "10",
+      "max_score": 0.257430762052536,
       "accepted_at_threshold": false,
       "needs_manual_review": false
     }
