@@ -2,17 +2,17 @@
   "errors": [],
   "warnings": [
     "unsupported file in images/: .gitkeep",
-    "151 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)",
+    "152 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)",
     "only 28 front-side target images (recommended >= 100)",
     "only 17 back-side target images (recommended >= 100)",
     "no images of the OLD Rs.50 note (not the target; recommended as a hard negative)"
   ],
   "stats": {
-    "total_images": 689,
-    "images_on_disk": 689,
-    "manifest_hash": "11c573e30d49235d",
+    "total_images": 735,
+    "images_on_disk": 735,
+    "manifest_hash": "b981fabdd13e7631",
     "by_denomination": {
-      "50_new": 120,
+      "50_new": 166,
       "background": 139,
       "10": 85,
       "20": 86,
@@ -23,16 +23,16 @@
     "target_by_side": {
       "front": 28,
       "back": 17,
-      "unknown": 75
+      "unknown": 121
     },
     "by_split": {
-      "train": 308,
+      "train": 354,
       "test": 193,
       "val": 188
     },
     "by_split_and_denomination": {
       "train": {
-        "50_new": 55,
+        "50_new": 101,
         "background": 65,
         "100": 38,
         "10": 36,
@@ -69,26 +69,27 @@
       "scan_val": 22,
       "webcam_s01": 255,
       "webcam_s02": 153,
-      "webcam_s03": 164
+      "webcam_s03": 164,
+      "webcam_s04": 46
     },
     "by_source": {
       "phone": 117,
-      "webcam": 572
+      "webcam": 618
     },
     "by_lighting": {
-      "unknown": 689
+      "unknown": 735
     },
     "resolution_buckets": {
-      "<= 1600": 689
+      "<= 1600": 735
     },
     "boxes_per_image": {
       "0": 139,
-      "1": 550
+      "1": 596
     },
     "label_files_missing": 0,
     "other_note_images_not_yet_boxed": 0,
     "blurry_images_laplacian_var_lt_20": 5,
-    "near_duplicate_pairs_same_split": 151,
+    "near_duplicate_pairs_same_split": 152,
     "cross_split_near_duplicates": 0
   },
   "ready_for_training": true,

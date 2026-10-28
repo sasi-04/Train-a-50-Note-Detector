@@ -1,13 +1,13 @@
 # Dataset quality audit
 
 Dataset root: `dataset`  
-Manifest hash: `11c573e30d49235d`  
+Manifest hash: `b981fabdd13e7631`  
 Status: **READY FOR TRAINING** (0 errors, 5 warnings)
 
 ## Totals
 
-- Images in manifest: 689 (on disk: 689)
-- Target front / back / unknown side: 28 / 17 / 75
+- Images in manifest: 735 (on disk: 735)
+- Target front / back / unknown side: 28 / 17 / 121
 
 ## Images per denomination
 
@@ -18,7 +18,7 @@ Status: **READY FOR TRAINING** (0 errors, 5 warnings)
 | 20 | 86 |
 | 200 | 86 |
 | 500 | 85 |
-| 50_new | 120 |
+| 50_new | 166 |
 | background | 139 |
 
 ## Images per split
@@ -26,7 +26,7 @@ Status: **READY FOR TRAINING** (0 errors, 5 warnings)
 | value | count |
 |---|---|
 | test | 193 |
-| train | 308 |
+| train | 354 |
 | val | 188 |
 
 ## Split x denomination
@@ -34,7 +34,7 @@ Status: **READY FOR TRAINING** (0 errors, 5 warnings)
 | split | 50_new | 50_old | 10 | 20 | 100 | 200 | 500 | object | background | mixed | unknown |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | test | 36 | 0 | 22 | 29 | 19 | 28 | 21 | 0 | 38 | 0 | 0 |
-| train | 55 | 0 | 36 | 38 | 38 | 39 | 37 | 0 | 65 | 0 | 0 |
+| train | 101 | 0 | 36 | 38 | 38 | 39 | 37 | 0 | 65 | 0 | 0 |
 | val | 29 | 0 | 27 | 19 | 31 | 19 | 27 | 0 | 36 | 0 | 0 |
 
 ## Capture sessions
@@ -51,36 +51,37 @@ Status: **READY FOR TRAINING** (0 errors, 5 warnings)
 | webcam_s01 | 255 |
 | webcam_s02 | 153 |
 | webcam_s03 | 164 |
+| webcam_s04 | 46 |
 
 ## Image source
 
 | value | count |
 |---|---|
 | phone | 117 |
-| webcam | 572 |
+| webcam | 618 |
 
 ## Lighting condition
 
 | value | count |
 |---|---|
-| unknown | 689 |
+| unknown | 735 |
 
 ## Resolution (long side, px)
 
 | value | count |
 |---|---|
-| <= 1600 | 689 |
+| <= 1600 | 735 |
 
 ## Boxes per image
 
 | value | count |
 |---|---|
 | 0 | 139 |
-| 1 | 550 |
+| 1 | 596 |
 
 ## Integrity
 
-- Near-duplicate pairs inside one split: 151
+- Near-duplicate pairs inside one split: 152
 - Cross-split near-duplicate pairs (leakage): 0
 - Very blurry images (Laplacian variance < 20): 5
 
@@ -90,7 +91,7 @@ Status: **READY FOR TRAINING** (0 errors, 5 warnings)
 ## Warnings (5)
 
 - unsupported file in images/: .gitkeep
-- 151 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)
+- 152 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)
 - only 28 front-side target images (recommended >= 100)
 - only 17 back-side target images (recommended >= 100)
 - no images of the OLD Rs.50 note (not the target; recommended as a hard negative)
