@@ -59,7 +59,7 @@ def main() -> int:
     meta = {
         "format": "onnx", "imgsz": a.imgsz, "opset": a.opset, "output_shape": out_shape,
         "class_names": {int(k): v for k, v in names.items()},
-        "target_class": TARGET_CLASS_NAME, "display_label": DISPLAY_LABEL,
+        "target_class": TARGET_CLASS_NAME, "display_label": DISPLAY_LABEL, "num_classes": len(names),
         "preprocess": "letterbox pad=114, RGB, /255, NCHW float32",
         "source_checkpoint": str(weights), "source_checkpoint_sha256": sha256_file(weights),
         "onnx_sha256": sha256_file(out), "onnx_size_bytes": out.stat().st_size,

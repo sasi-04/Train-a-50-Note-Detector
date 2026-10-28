@@ -22,7 +22,7 @@ from pathlib import Path
 import _bootstrap  # noqa: F401
 import yaml
 
-from detector import TARGET_CLASS_NAME
+from detector import OTHER_CLASS_NAME, TARGET_CLASS_NAME
 from detector.dataset import DatasetPaths, audit_dataset, load_manifest, manifest_hash, sha256_file
 
 
@@ -32,11 +32,12 @@ def write_data_yaml(paths: DatasetPaths, run_dir: Path, final_fit: bool = False)
     data_dir = run_dir / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
     for sp in ("train", "val", "test"):
+        # images still 'unlabeled' (other-denomination notes not yet boxed) must not teach "no note here"
         lst = [str((paths.images / r["filename"]).resolve()) for r in rows
-               if r["split"] == sp or (final_fit and sp == "train")]
+               if (r["split"] == sp or (final_fit and sp == "train")) and r["label_status"] != "unlabeled"]
         (data_dir / f"{sp}.txt").write_text("\n".join(lst) + "\n", encoding="utf-8")
     data = {"path": str(data_dir.resolve()), "train": "train.txt", "val": "val.txt", "test": "test.txt",
-            "names": {0: TARGET_CLASS_NAME}}
+            "names": {0: TARGET_CLASS_NAME, 1: OTHER_CLASS_NAME}}
     p = data_dir / "data.yaml"
     p.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     return p
@@ -119,7 +120,7 @@ def main() -> int:
             print(f"note: {model_src} will be downloaded by Ultralytics (COCO weights; internet required once)")
         model = YOLO(str(model_src))
         model.train(data=str(data_yaml), project=str(run_root), name=name, exist_ok=True, seed=seed,
-                    single_cls=True, verbose=True, **tr)
+                    verbose=True, **tr)
 
     best = run_dir / "weights" / "best.pt"
     info = {

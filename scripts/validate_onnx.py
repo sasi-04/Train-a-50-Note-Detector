@@ -118,7 +118,7 @@ def main() -> int:
     R.add("output layout recognised", True, f"shape {det.layout_shape} -> {layout}")
     nc = (det.layout_shape[1] - 4) if layout == "channels_first" else None
     if nc is not None:
-        R.add("single-class head (nc == 1)", nc == 1, f"{nc} class channel(s)")
+        R.add("class head is Rs.50 (+ optional 'other note')", nc in (1, 2), f"{nc} class channel(s)")
 
     images, desc = load_images(a.images)
     info["test_images"] = desc
