@@ -58,9 +58,12 @@ python scripts/annotate.py --only-unlabeled
 * `angle`: `frontal | tilted | steep | unknown` · `background`: `plain | cluttered | hand_held | unknown`
 * Import re-encodes to JPEG (long side ≤ 1600 px), which **removes EXIF including GPS**. Photos are still
   yours: look through them for faces, addresses or documents before publishing the repository.
-* **Annotation:** drag a tight box around each ₹50 note (right-click removes). Nothing is auto-annotated. Negatives
-  get an empty label file on import (a genuine "no ₹50 here"). A target image must have ≥ 1 box; a negative
-  image must have none (the auditor enforces both).
+* **Annotation (two classes):** class 0 = the new ₹50, class 1 = any other banknote (₹10/20/100/200/500, shown as a red
+  "Other note" box). Drag a tight box around each note (right-click removes). A ₹50 image needs a class-0 box; an
+  other-denomination image needs a class-1 box and no class-0 box; no-note images (`object`/`background`) keep an empty label.
+  The auditor enforces all three. Other-denomination images imported without a box are `unlabeled`: they are excluded from
+  training until boxed (`scripts/propose_other_boxes.py` proposes boxes from a helper model; you review them on contact sheets)
+  or removed. Nothing is auto-accepted.
 * The metadata describes what *you* know; the tools never infer a denomination from a file name.
 
 ## Verify before training
