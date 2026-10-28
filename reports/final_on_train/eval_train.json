@@ -1,20 +1,20 @@
 {
-  "generated_utc": "2026-10-28T13:41:37+00:00",
+  "generated_utc": "2026-10-28T18:20:58+00:00",
   "split": "train",
-  "threshold": 0.62,
+  "threshold": 0.27,
   "threshold_status": "from configs/inference.yaml",
   "threshold_selection": null,
   "iou_threshold": 0.5,
-  "images": 308,
+  "images": 354,
   "model": {
     "path": "model.onnx",
-    "sha256": "ee2a0455e060c746684eb97b069d88ddbe23ff83d4bb1dfb4e53dd611bb7f04b",
+    "sha256": "93a630e81cfb902ad824590f03ce1888424260a36f562746728a1c4e8e57c5e5",
     "imgsz": 480,
     "size_bytes": 12700634
   },
   "dataset": {
-    "manifest_hash": "11c573e30d49235d",
-    "total_images": 689
+    "manifest_hash": "7db1d0e102c3300e",
+    "total_images": 801
   },
   "hardware": {
     "cpu": "Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz",
@@ -25,20 +25,20 @@
     "numpy": "2.5.4"
   },
   "overall": {
-    "images": 308,
-    "positive_images": 55,
+    "images": 354,
+    "positive_images": 101,
     "negative_images": 253,
-    "tp_images": 55,
+    "tp_images": 101,
     "fn_images": 0,
     "fp_images": 0,
     "image_recall": 1.0,
     "recall_ci95": [
-      0.9347128562105721,
-      0.9999999999999999
+      0.9633580563440465,
+      0.9999999999999998
     ],
     "neg_image_fp_rate": 0.0,
     "neg_image_fp_rate_ci95_upper": 0.014957078604089055,
-    "det_tp": 55,
+    "det_tp": 101,
     "det_fp": 0,
     "det_fn": 0,
     "precision": 1.0,
@@ -46,7 +46,7 @@
     "f1": 1.0,
     "ap50": 1.0,
     "confusion_image_level": {
-      "actual_target__pred_target": 55,
+      "actual_target__pred_target": 101,
       "actual_target__pred_none": 0,
       "actual_none__pred_target": 0,
       "actual_none__pred_none": 253
@@ -130,20 +130,20 @@
       "det_fn": 0
     },
     "50_new": {
-      "images": 55,
-      "positive_images": 55,
+      "images": 101,
+      "positive_images": 101,
       "negative_images": 0,
-      "tp_images": 55,
+      "tp_images": 101,
       "fn_images": 0,
       "fp_images": 0,
       "image_recall": 1.0,
       "recall_ci95": [
-        0.9347128562105721,
-        0.9999999999999999
+        0.9633580563440465,
+        0.9999999999999998
       ],
       "neg_image_fp_rate": null,
       "neg_image_fp_rate_ci95_upper": null,
-      "det_tp": 55,
+      "det_tp": 101,
       "det_fp": 0,
       "det_fn": 0
     },
@@ -351,20 +351,20 @@
       "det_fn": 0
     },
     "50_new/unknown": {
-      "images": 31,
-      "positive_images": 31,
+      "images": 77,
+      "positive_images": 77,
       "negative_images": 0,
-      "tp_images": 31,
+      "tp_images": 77,
       "fn_images": 0,
       "fp_images": 0,
       "image_recall": 1.0,
       "recall_ci95": [
-        0.889740999265246,
-        0.9999999999999999
+        0.9524799113327793,
+        1.0
       ],
       "neg_image_fp_rate": null,
       "neg_image_fp_rate_ci95_upper": null,
-      "det_tp": 31,
+      "det_tp": 77,
       "det_fp": 0,
       "det_fn": 0
     },
@@ -386,40 +386,40 @@
   },
   "by_lighting": {
     "unknown": {
-      "images": 308,
-      "positive_images": 55,
+      "images": 354,
+      "positive_images": 101,
       "negative_images": 253,
-      "tp_images": 55,
+      "tp_images": 101,
       "fn_images": 0,
       "fp_images": 0,
       "image_recall": 1.0,
       "recall_ci95": [
-        0.9347128562105721,
-        0.9999999999999999
+        0.9633580563440465,
+        0.9999999999999998
       ],
       "neg_image_fp_rate": 0.0,
       "neg_image_fp_rate_ci95_upper": 0.014957078604089055,
-      "det_tp": 55,
+      "det_tp": 101,
       "det_fp": 0,
       "det_fn": 0
     }
   },
   "by_angle": {
     "unknown": {
-      "images": 308,
-      "positive_images": 55,
+      "images": 354,
+      "positive_images": 101,
       "negative_images": 253,
-      "tp_images": 55,
+      "tp_images": 101,
       "fn_images": 0,
       "fp_images": 0,
       "image_recall": 1.0,
       "recall_ci95": [
-        0.9347128562105721,
-        0.9999999999999999
+        0.9633580563440465,
+        0.9999999999999998
       ],
       "neg_image_fp_rate": 0.0,
       "neg_image_fp_rate_ci95_upper": 0.014957078604089055,
-      "det_tp": 55,
+      "det_tp": 101,
       "det_fp": 0,
       "det_fn": 0
     }
@@ -441,20 +441,20 @@
       "det_fn": 0
     },
     "hand_held": {
-      "images": 210,
-      "positive_images": 47,
+      "images": 256,
+      "positive_images": 93,
       "negative_images": 163,
-      "tp_images": 47,
+      "tp_images": 93,
       "fn_images": 0,
       "fp_images": 0,
       "image_recall": 1.0,
       "recall_ci95": [
-        0.9244398288016114,
-        1.0
+        0.9603310973796383,
+        0.9999999999999999
       ],
       "neg_image_fp_rate": 0.0,
       "neg_image_fp_rate_ci95_upper": 0.023025432506041655,
-      "det_tp": 47,
+      "det_tp": 93,
       "det_fp": 0,
       "det_fn": 0
     },
@@ -531,6 +531,24 @@
       "det_tp": 31,
       "det_fp": 0,
       "det_fn": 0
+    },
+    "webcam_s04": {
+      "images": 46,
+      "positive_images": 46,
+      "negative_images": 0,
+      "tp_images": 46,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": 1.0,
+      "recall_ci95": [
+        0.9229238226702192,
+        1.0
+      ],
+      "neg_image_fp_rate": null,
+      "neg_image_fp_rate_ci95_upper": null,
+      "det_tp": 46,
+      "det_fp": 0,
+      "det_fn": 0
     }
   },
   "required_scenarios": {
@@ -574,45 +592,45 @@
     "angled": "NOT TESTED"
   },
   "latency": {
-    "n": 308,
-    "inference_ms_median": 68.79835001018364,
-    "inference_ms_p95": 78.70298500347414,
-    "pipeline_ms_median": 72.83525000093505,
-    "pipeline_ms_p95": 82.94579001376403,
-    "throughput_fps_pipeline": 13.729615810849308
+    "n": 354,
+    "inference_ms_median": 61.18745000276249,
+    "inference_ms_p95": 101.41945499926804,
+    "pipeline_ms_median": 64.56835000426508,
+    "pipeline_ms_p95": 106.40311001334338,
+    "throughput_fps_pipeline": 15.487464058380688
   },
   "two_class_model": true,
-  "other_threshold": 0.82,
+  "other_threshold": 0.37,
   "other_threshold_status": "from configs/inference.yaml",
   "other_threshold_selection": null,
   "other_note_overall": {
-    "images": 308,
+    "images": 354,
     "positive_images": 188,
-    "negative_images": 120,
-    "tp_images": 166,
-    "fn_images": 22,
-    "fp_images": 0,
-    "image_recall": 0.8829787234042553,
+    "negative_images": 166,
+    "tp_images": 188,
+    "fn_images": 0,
+    "fp_images": 1,
+    "image_recall": 1.0,
     "recall_ci95": [
-      0.8291801494693465,
-      0.921439111420888
+      0.9799751461622506,
+      1.0
     ],
-    "neg_image_fp_rate": 0.0,
-    "neg_image_fp_rate_ci95_upper": 0.031020271055929513,
-    "det_tp": 166,
-    "det_fp": 0,
-    "det_fn": 22,
-    "precision": 1.0,
-    "recall": 0.8829787234042553,
-    "f1": 0.9378531073446328,
-    "ap50": 0.9999437127096702,
+    "neg_image_fp_rate": 0.006024096385542169,
+    "neg_image_fp_rate_ci95_upper": 0.03333023419658525,
+    "det_tp": 188,
+    "det_fp": 1,
+    "det_fn": 0,
+    "precision": 0.9947089947089947,
+    "recall": 1.0,
+    "f1": 0.9973474801061007,
+    "ap50": 1.0,
     "confusion_image_level": {
-      "actual_target__pred_target": 166,
-      "actual_target__pred_none": 22,
-      "actual_none__pred_target": 0,
-      "actual_none__pred_none": 120
+      "actual_target__pred_target": 188,
+      "actual_target__pred_none": 0,
+      "actual_none__pred_target": 1,
+      "actual_none__pred_none": 165
     },
-    "threshold": 0.82
+    "threshold": 0.37
   },
   "app_output_by_denomination": {
     "10": {
@@ -624,38 +642,38 @@
     "100": {
       "images": 38,
       "shown_rs50": 0,
-      "shown_other": 31,
-      "shown_none": 7
+      "shown_other": 38,
+      "shown_none": 0
     },
     "20": {
       "images": 38,
       "shown_rs50": 0,
-      "shown_other": 34,
-      "shown_none": 4
+      "shown_other": 38,
+      "shown_none": 0
     },
     "200": {
       "images": 39,
       "shown_rs50": 0,
-      "shown_other": 31,
-      "shown_none": 8
+      "shown_other": 39,
+      "shown_none": 0
     },
     "500": {
       "images": 37,
       "shown_rs50": 0,
-      "shown_other": 34,
-      "shown_none": 3
+      "shown_other": 37,
+      "shown_none": 0
     },
     "50_new": {
-      "images": 55,
-      "shown_rs50": 55,
+      "images": 101,
+      "shown_rs50": 101,
       "shown_other": 0,
       "shown_none": 0
     },
     "background": {
       "images": 65,
       "shown_rs50": 0,
-      "shown_other": 0,
-      "shown_none": 65
+      "shown_other": 1,
+      "shown_none": 64
     }
   }
 }

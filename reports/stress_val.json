@@ -1,0 +1,270 @@
+{
+  "split": "val",
+  "operating_threshold": 0.27,
+  "negative_images": 159,
+  "by_category": {
+    "10": {
+      "tested": 27,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        6.938893903907228e-18,
+        0.12455903714463581
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.27": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.015574893914163113
+    },
+    "100": {
+      "tested": 31,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.11025900073475385
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.27": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.022020401433110237
+    },
+    "20": {
+      "tested": 19,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.16818436536845052
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.27": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.0
+    },
+    "200": {
+      "tested": 19,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.16818436536845052
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.27": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.0
+    },
+    "500": {
+      "tested": 27,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        6.938893903907228e-18,
+        0.12455903714463581
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.27": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.0
+    },
+    "background": {
+      "tested": 36,
+      "false_positive_images_at_threshold": 0,
+      "fp_rate_ci95": [
+        0.0,
+        0.09642183044857634
+      ],
+      "fp_images_by_threshold": {
+        "0.25": 0,
+        "0.27": 0,
+        "0.40": 0,
+        "0.50": 0,
+        "0.60": 0,
+        "0.70": 0,
+        "0.80": 0,
+        "0.90": 0
+      },
+      "max_false_score": 0.129610076546669
+    }
+  },
+  "false_score_quantiles": {
+    "50": 0.0,
+    "90": 0.0,
+    "95": 0.001055010035633981,
+    "99": 0.02671372350305305,
+    "100": 0.129610076546669
+  },
+  "hardest": [
+    {
+      "image_id": "webcam_s02_background_na_0022",
+      "denomination": "background",
+      "max_score": 0.129610076546669,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_background_na_0017",
+      "denomination": "background",
+      "max_score": 0.033194977790117264,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_100_unknown_0015",
+      "denomination": "100",
+      "max_score": 0.022020401433110237,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_10_unknown_0003",
+      "denomination": "10",
+      "max_score": 0.015574893914163113,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_100_unknown_0012",
+      "denomination": "100",
+      "max_score": 0.013421926647424698,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_background_na_0029",
+      "denomination": "background",
+      "max_score": 0.01096870843321085,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_10_unknown_0023",
+      "denomination": "10",
+      "max_score": 0.01070486195385456,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "webcam_s02_100_unknown_0010",
+      "denomination": "100",
+      "max_score": 0.010550100356340408,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "hand_b_face_background_na_0001",
+      "denomination": "background",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0001",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0002",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0003",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0004",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0005",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0006",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0007",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_100_back_0008",
+      "denomination": "100",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0001",
+      "denomination": "10",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0002",
+      "denomination": "10",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    },
+    {
+      "image_id": "scan_val_10_back_0003",
+      "denomination": "10",
+      "max_score": 0.0,
+      "accepted_at_threshold": false,
+      "needs_manual_review": false
+    }
+  ]
+}

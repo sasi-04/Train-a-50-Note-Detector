@@ -1,23 +1,24 @@
 {
-  "frames_processed": 1004,
-  "frames_with_accepted_detection": 371,
+  "frames_processed": 200,
+  "frames_with_accepted_detection": 0,
+  "frames_with_other_note_box": 0,
   "camera_read_failures": 0,
   "inference_errors": 0,
-  "threshold": 0.46,
+  "threshold": 0.27,
   "threshold_status": "validated on val split",
   "temporal_confirm_frames": 1,
   "opencv_version": "5.0.0",
   "model": "model.onnx",
   "imgsz": 480,
-  "model_init_ms": 340.5,
+  "model_init_ms": 159.8,
   "inference_ms": {
-    "mean": 81.51,
-    "median": 74.4,
-    "p95": 112.4
+    "mean": 71.45,
+    "median": 64.35,
+    "p95": 95.65
   },
   "total_ms": {
-    "mean": 85.7,
-    "median": 78.52,
-    "p95": 117.03
+    "mean": 75.95,
+    "median": 68.12,
+    "p95": 101.99
   }
 }
