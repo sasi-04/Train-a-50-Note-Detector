@@ -1,0 +1,694 @@
+{
+  "generated_utc": "2026-10-28T16:24:51+00:00",
+  "split": "test",
+  "threshold": 0.62,
+  "threshold_status": "from configs/inference.yaml",
+  "threshold_selection": null,
+  "iou_threshold": 0.5,
+  "images": 259,
+  "model": {
+    "path": "runs\\rs50_split2\\model_split2.onnx",
+    "sha256": "46100956e47e3d19ea62eb56921ef4531048dc0155de0984615d851062ddde8a",
+    "imgsz": 480,
+    "size_bytes": 12700634
+  },
+  "dataset": {
+    "manifest_hash": "7db1d0e102c3300e",
+    "total_images": 801
+  },
+  "hardware": {
+    "cpu": "Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz",
+    "logical_cores": 4,
+    "os": "Windows-10-10.0.19045-SP0",
+    "python": "3.14.4",
+    "opencv": "5.0.0",
+    "numpy": "2.5.4"
+  },
+  "overall": {
+    "images": 259,
+    "positive_images": 68,
+    "negative_images": 191,
+    "tp_images": 36,
+    "fn_images": 32,
+    "fp_images": 0,
+    "image_recall": 0.5294117647058824,
+    "recall_ci95": [
+      0.4124071581374707,
+      0.643270889122056
+    ],
+    "neg_image_fp_rate": 0.0,
+    "neg_image_fp_rate_ci95_upper": 0.019716528708448297,
+    "det_tp": 36,
+    "det_fp": 1,
+    "det_fn": 32,
+    "precision": 0.972972972972973,
+    "recall": 0.5294117647058824,
+    "f1": 0.6857142857142857,
+    "ap50": 0.6666656810566516,
+    "confusion_image_level": {
+      "actual_target__pred_target": 36,
+      "actual_target__pred_none": 32,
+      "actual_none__pred_target": 0,
+      "actual_none__pred_none": 191
+    }
+  },
+  "ap50_all_scores": 0.6666656810566516,
+  "by_denomination": {
+    "10": {
+      "images": 22,
+      "positive_images": 0,
+      "negative_images": 22,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.14865952572596125,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "100": {
+      "images": 19,
+      "positive_images": 0,
+      "negative_images": 19,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.16818436536845052,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "20": {
+      "images": 63,
+      "positive_images": 0,
+      "negative_images": 63,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.057473190348525466,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "200": {
+      "images": 28,
+      "positive_images": 0,
+      "negative_images": 28,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.12064720365810762,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "500": {
+      "images": 21,
+      "positive_images": 0,
+      "negative_images": 21,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.15464382326420195,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "50_new": {
+      "images": 68,
+      "positive_images": 68,
+      "negative_images": 0,
+      "tp_images": 36,
+      "fn_images": 32,
+      "fp_images": 0,
+      "image_recall": 0.5294117647058824,
+      "recall_ci95": [
+        0.4124071581374707,
+        0.643270889122056
+      ],
+      "neg_image_fp_rate": null,
+      "neg_image_fp_rate_ci95_upper": null,
+      "det_tp": 36,
+      "det_fp": 1,
+      "det_fn": 32
+    },
+    "background": {
+      "images": 38,
+      "positive_images": 0,
+      "negative_images": 38,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.09181293258383999,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    }
+  },
+  "by_side": {
+    "10/back": {
+      "images": 1,
+      "positive_images": 0,
+      "negative_images": 1,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.7934567085261071,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "10/unknown": {
+      "images": 21,
+      "positive_images": 0,
+      "negative_images": 21,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.15464382326420195,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "100/unknown": {
+      "images": 19,
+      "positive_images": 0,
+      "negative_images": 19,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.16818436536845052,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "20/back": {
+      "images": 2,
+      "positive_images": 0,
+      "negative_images": 2,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.6576280471103807,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "20/front": {
+      "images": 6,
+      "positive_images": 0,
+      "negative_images": 6,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.3903430336530645,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "20/unknown": {
+      "images": 55,
+      "positive_images": 0,
+      "negative_images": 55,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.06528714378942788,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "200/front": {
+      "images": 6,
+      "positive_images": 0,
+      "negative_images": 6,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.3903430336530645,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "200/unknown": {
+      "images": 22,
+      "positive_images": 0,
+      "negative_images": 22,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.14865952572596125,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "500/unknown": {
+      "images": 21,
+      "positive_images": 0,
+      "negative_images": 21,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.15464382326420195,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "50_new/back": {
+      "images": 6,
+      "positive_images": 6,
+      "negative_images": 0,
+      "tp_images": 5,
+      "fn_images": 1,
+      "fp_images": 0,
+      "image_recall": 0.8333333333333334,
+      "recall_ci95": [
+        0.43649056343635395,
+        0.9699474141282697
+      ],
+      "neg_image_fp_rate": null,
+      "neg_image_fp_rate_ci95_upper": null,
+      "det_tp": 5,
+      "det_fp": 0,
+      "det_fn": 1
+    },
+    "50_new/front": {
+      "images": 8,
+      "positive_images": 8,
+      "negative_images": 0,
+      "tp_images": 8,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": 1.0,
+      "recall_ci95": [
+        0.6755843804891231,
+        1.0
+      ],
+      "neg_image_fp_rate": null,
+      "neg_image_fp_rate_ci95_upper": null,
+      "det_tp": 8,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "50_new/unknown": {
+      "images": 54,
+      "positive_images": 54,
+      "negative_images": 0,
+      "tp_images": 23,
+      "fn_images": 31,
+      "fp_images": 0,
+      "image_recall": 0.42592592592592593,
+      "recall_ci95": [
+        0.30331621798657443,
+        0.5583750215365371
+      ],
+      "neg_image_fp_rate": null,
+      "neg_image_fp_rate_ci95_upper": null,
+      "det_tp": 23,
+      "det_fp": 1,
+      "det_fn": 31
+    },
+    "background/na": {
+      "images": 38,
+      "positive_images": 0,
+      "negative_images": 38,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.09181293258383999,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    }
+  },
+  "by_lighting": {
+    "unknown": {
+      "images": 259,
+      "positive_images": 68,
+      "negative_images": 191,
+      "tp_images": 36,
+      "fn_images": 32,
+      "fp_images": 0,
+      "image_recall": 0.5294117647058824,
+      "recall_ci95": [
+        0.4124071581374707,
+        0.643270889122056
+      ],
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.019716528708448297,
+      "det_tp": 36,
+      "det_fp": 1,
+      "det_fn": 32
+    }
+  },
+  "by_angle": {
+    "unknown": {
+      "images": 259,
+      "positive_images": 68,
+      "negative_images": 191,
+      "tp_images": 36,
+      "fn_images": 32,
+      "fp_images": 0,
+      "image_recall": 0.5294117647058824,
+      "recall_ci95": [
+        0.4124071581374707,
+        0.643270889122056
+      ],
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.019716528708448297,
+      "det_tp": 36,
+      "det_fp": 1,
+      "det_fn": 32
+    }
+  },
+  "by_background": {
+    "cluttered": {
+      "images": 38,
+      "positive_images": 0,
+      "negative_images": 38,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.09181293258383999,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "hand_held": {
+      "images": 204,
+      "positive_images": 66,
+      "negative_images": 138,
+      "tp_images": 34,
+      "fn_images": 32,
+      "fp_images": 0,
+      "image_recall": 0.5151515151515151,
+      "recall_ci95": [
+        0.39710384843935753,
+        0.6315323798257452
+      ],
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.027083732840013083,
+      "det_tp": 34,
+      "det_fp": 1,
+      "det_fn": 32
+    },
+    "plain": {
+      "images": 6,
+      "positive_images": 2,
+      "negative_images": 4,
+      "tp_images": 2,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": 1.0,
+      "recall_ci95": [
+        0.34237195288961925,
+        1.0
+      ],
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.48990002040399916,
+      "det_tp": 2,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "unknown": {
+      "images": 11,
+      "positive_images": 0,
+      "negative_images": 11,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.2588400172488141,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    }
+  },
+  "by_session": {
+    "hand_b_close": {
+      "images": 12,
+      "positive_images": 12,
+      "negative_images": 0,
+      "tp_images": 11,
+      "fn_images": 1,
+      "fp_images": 0,
+      "image_recall": 0.9166666666666666,
+      "recall_ci95": [
+        0.6461140782014047,
+        0.9851352905492264
+      ],
+      "neg_image_fp_rate": null,
+      "neg_image_fp_rate_ci95_upper": null,
+      "det_tp": 11,
+      "det_fp": 0,
+      "det_fn": 1
+    },
+    "scan_test_blue": {
+      "images": 6,
+      "positive_images": 2,
+      "negative_images": 4,
+      "tp_images": 2,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": 1.0,
+      "recall_ci95": [
+        0.34237195288961925,
+        1.0
+      ],
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.48990002040399916,
+      "det_tp": 2,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "scan_test_crop": {
+      "images": 11,
+      "positive_images": 0,
+      "negative_images": 11,
+      "tp_images": 0,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": null,
+      "recall_ci95": null,
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.2588400172488141,
+      "det_tp": 0,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "webcam_s03": {
+      "images": 164,
+      "positive_images": 22,
+      "negative_images": 142,
+      "tp_images": 19,
+      "fn_images": 3,
+      "fp_images": 0,
+      "image_recall": 0.8636363636363636,
+      "recall_ci95": [
+        0.6666458812053,
+        0.9525108273576373
+      ],
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.02634090684688045,
+      "det_tp": 19,
+      "det_fp": 1,
+      "det_fn": 3
+    },
+    "webcam_s05": {
+      "images": 66,
+      "positive_images": 32,
+      "negative_images": 34,
+      "tp_images": 4,
+      "fn_images": 28,
+      "fp_images": 0,
+      "image_recall": 0.125,
+      "recall_ci95": [
+        0.04970053844474301,
+        0.2806864978482796
+      ],
+      "neg_image_fp_rate": 0.0,
+      "neg_image_fp_rate_ci95_upper": 0.10151790621961015,
+      "det_tp": 4,
+      "det_fp": 0,
+      "det_fn": 28
+    }
+  },
+  "required_scenarios": {
+    "front side": {
+      "images": 8,
+      "positive_images": 8,
+      "negative_images": 0,
+      "tp_images": 8,
+      "fn_images": 0,
+      "fp_images": 0,
+      "image_recall": 1.0,
+      "recall_ci95": [
+        0.6755843804891231,
+        1.0
+      ],
+      "neg_image_fp_rate": null,
+      "neg_image_fp_rate_ci95_upper": null,
+      "det_tp": 8,
+      "det_fp": 0,
+      "det_fn": 0
+    },
+    "back side": {
+      "images": 6,
+      "positive_images": 6,
+      "negative_images": 0,
+      "tp_images": 5,
+      "fn_images": 1,
+      "fp_images": 0,
+      "image_recall": 0.8333333333333334,
+      "recall_ci95": [
+        0.43649056343635395,
+        0.9699474141282697
+      ],
+      "neg_image_fp_rate": null,
+      "neg_image_fp_rate_ci95_upper": null,
+      "det_tp": 5,
+      "det_fp": 0,
+      "det_fn": 1
+    },
+    "dim lighting": "NOT TESTED",
+    "angled": "NOT TESTED"
+  },
+  "latency": {
+    "n": 259,
+    "inference_ms_median": 74.59999999264255,
+    "inference_ms_p95": 148.26457001036016,
+    "pipeline_ms_median": 78.93260000855662,
+    "pipeline_ms_p95": 154.58399000926858,
+    "throughput_fps_pipeline": 12.669036619743881
+  },
+  "two_class_model": true,
+  "other_threshold": 0.82,
+  "other_threshold_status": "from configs/inference.yaml",
+  "other_threshold_selection": null,
+  "other_note_overall": {
+    "images": 259,
+    "positive_images": 153,
+    "negative_images": 106,
+    "tp_images": 89,
+    "fn_images": 64,
+    "fp_images": 0,
+    "image_recall": 0.5816993464052288,
+    "recall_ci95": [
+      0.5024720105349708,
+      0.6569244761114291
+    ],
+    "neg_image_fp_rate": 0.0,
+    "neg_image_fp_rate_ci95_upper": 0.034973998922084165,
+    "det_tp": 89,
+    "det_fp": 0,
+    "det_fn": 64,
+    "precision": 1.0,
+    "recall": 0.5816993464052288,
+    "f1": 0.7355371900826446,
+    "ap50": 0.8962788435547984,
+    "confusion_image_level": {
+      "actual_target__pred_target": 89,
+      "actual_target__pred_none": 64,
+      "actual_none__pred_target": 0,
+      "actual_none__pred_none": 106
+    },
+    "threshold": 0.82
+  },
+  "app_output_by_denomination": {
+    "10": {
+      "images": 22,
+      "shown_rs50": 0,
+      "shown_other": 14,
+      "shown_none": 8
+    },
+    "100": {
+      "images": 19,
+      "shown_rs50": 0,
+      "shown_other": 11,
+      "shown_none": 8
+    },
+    "20": {
+      "images": 63,
+      "shown_rs50": 0,
+      "shown_other": 28,
+      "shown_none": 35
+    },
+    "200": {
+      "images": 28,
+      "shown_rs50": 0,
+      "shown_other": 23,
+      "shown_none": 5
+    },
+    "500": {
+      "images": 21,
+      "shown_rs50": 0,
+      "shown_other": 13,
+      "shown_none": 8
+    },
+    "50_new": {
+      "images": 68,
+      "shown_rs50": 37,
+      "shown_other": 0,
+      "shown_none": 31
+    },
+    "background": {
+      "images": 38,
+      "shown_rs50": 0,
+      "shown_other": 0,
+      "shown_none": 38
+    }
+  }
+}
