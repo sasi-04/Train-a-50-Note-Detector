@@ -20,7 +20,7 @@ from typing import Callable, Iterable, Sequence
 import cv2
 import numpy as np
 
-from .dataset import DatasetPaths, parse_label_file
+from .dataset import NUM_CLASSES, DatasetPaths, parse_label_file
 from .postprocessing import iou_one_to_many
 from .thresholding import SweepPoint, plausible_shape
 
@@ -29,15 +29,26 @@ from .thresholding import SweepPoint, plausible_shape
 class ImageRecord:
     image_id: str
     meta: dict
-    gt: np.ndarray  # (n,4) xyxy pixels
+    gt: np.ndarray  # (n,4) xyxy pixels, all classes
     preds: list[tuple[tuple[float, float, float, float], float, int]]  # (box, score, class)
     inference_ms: float = 0.0
     total_ms: float = 0.0
     image_wh: tuple[int, int] = (0, 0)
+    gt_cls: np.ndarray | None = None  # (n,) class per gt box; default all class 0
+
+    def __post_init__(self) -> None:
+        if self.gt_cls is None:
+            self.gt_cls = np.zeros(len(self.gt), int)
+
+    def boxes_of(self, cls: int = 0) -> np.ndarray:
+        return self.gt[self.gt_cls == cls]
+
+    def has(self, cls: int = 0) -> bool:
+        return bool((self.gt_cls == cls).any())
 
     @property
     def positive(self) -> bool:
-        return len(self.gt) > 0
+        return self.has(0)
 
     def target_scores(self, target_class: int = 0) -> list[float]:
         """Scores of target-class candidates that pass the same shape check as the deployed decision."""
@@ -59,13 +70,15 @@ def wilson_interval(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
     return max(0.0, centre - half), min(1.0, centre + half)
 
 
-def load_gt(paths: DatasetPaths, image_id: str, w: int, h: int) -> np.ndarray:
+def load_gt(paths: DatasetPaths, image_id: str, w: int, h: int) -> tuple[np.ndarray, np.ndarray]:
+    """Ground-truth boxes (xyxy pixels) and their class ids."""
     lab = paths.labels / f"{image_id}.txt"
-    boxes = []
+    boxes, classes = [], []
     if lab.is_file():
-        for _, cx, cy, bw, bh in parse_label_file(lab).boxes:
+        for c, cx, cy, bw, bh in parse_label_file(lab, NUM_CLASSES).boxes:
             boxes.append([(cx - bw / 2) * w, (cy - bh / 2) * h, (cx + bw / 2) * w, (cy + bh / 2) * h])
-    return np.asarray(boxes, dtype=np.float64).reshape(-1, 4)
+            classes.append(c)
+    return np.asarray(boxes, dtype=np.float64).reshape(-1, 4), np.asarray(classes, dtype=int)
 
 
 def collect_predictions(detector, rows: Sequence[dict], paths: DatasetPaths,
@@ -78,10 +91,11 @@ def collect_predictions(detector, rows: Sequence[dict], paths: DatasetPaths,
             raise RuntimeError(f"cannot read {r['filename']}")
         h, w = img.shape[:2]
         res = detector.infer(img)
+        gt, gt_cls = load_gt(paths, r["image_id"], w, h)
         recs.append(ImageRecord(
-            r["image_id"], r, load_gt(paths, r["image_id"], w, h),
+            r["image_id"], r, gt,
             [(c.box, c.score, c.class_id) for c in res.candidates],
-            res.timings.inference_ms, res.timings.total_ms, (w, h)))
+            res.timings.inference_ms, res.timings.total_ms, (w, h), gt_cls))
         if progress:
             progress(i + 1, len(rows))
     return recs
@@ -91,11 +105,12 @@ def match(rec: ImageRecord, threshold: float, iou_thr: float = 0.5, target_class
     """Return (tp, fp, fn) detections for one image at ``threshold``."""
     preds = sorted((p for p in rec.preds if p[2] == target_class and p[1] >= threshold and rec._ok(p[0])),
                    key=lambda p: -p[1])
-    used = np.zeros(len(rec.gt), bool)
+    gt = rec.boxes_of(target_class)
+    used = np.zeros(len(gt), bool)
     tp = 0
     for box, _, _ in preds:
-        if len(rec.gt):
-            ious = iou_one_to_many(np.asarray(box), rec.gt)
+        if len(gt):
+            ious = iou_one_to_many(np.asarray(box), gt)
             ious[used] = -1
             j = int(ious.argmax())
             if ious[j] >= iou_thr:
@@ -104,15 +119,16 @@ def match(rec: ImageRecord, threshold: float, iou_thr: float = 0.5, target_class
     return tp, len(preds) - tp, int((~used).sum())
 
 
-def sweep(records: Sequence[ImageRecord], thresholds: Iterable[float], iou_thr: float = 0.5) -> list[SweepPoint]:
+def sweep(records: Sequence[ImageRecord], thresholds: Iterable[float], iou_thr: float = 0.5,
+          target_class: int = 0) -> list[SweepPoint]:
     pts = []
-    neg = [r for r in records if not r.positive]
+    neg = [r for r in records if not r.has(target_class)]
     for t in thresholds:
         tp = fp = fn = fp_imgs = 0
         for r in records:
-            a, b, c = match(r, t, iou_thr)
+            a, b, c = match(r, t, iou_thr, target_class)
             tp, fp, fn = tp + a, fp + b, fn + c
-        fp_imgs = sum(1 for r in neg if any(s >= t for s in r.target_scores()))
+        fp_imgs = sum(1 for r in neg if any(s >= t for s in r.target_scores(target_class)))
         p = tp / (tp + fp) if tp + fp else 1.0
         rc = tp / (tp + fn) if tp + fn else float("nan")
         f1 = 2 * p * rc / (p + rc) if (p + rc) and rc == rc else 0.0
@@ -120,18 +136,19 @@ def sweep(records: Sequence[ImageRecord], thresholds: Iterable[float], iou_thr: 
     return pts
 
 
-def average_precision(records: Sequence[ImageRecord], iou_thr: float = 0.5) -> float:
-    """All-point interpolated AP@IoU for the target class (VOC style)."""
-    n_gt = sum(len(r.gt) for r in records)
+def average_precision(records: Sequence[ImageRecord], iou_thr: float = 0.5, target_class: int = 0) -> float:
+    """All-point interpolated AP@IoU for ``target_class`` (VOC style)."""
+    n_gt = sum(len(r.boxes_of(target_class)) for r in records)
     if n_gt == 0:
         return float("nan")
     dets = []
     for r in records:
-        used = np.zeros(len(r.gt), bool)
-        for box, s, c in sorted((p for p in r.preds if p[2] == 0 and r._ok(p[0])), key=lambda p: -p[1]):
+        gt = r.boxes_of(target_class)
+        used = np.zeros(len(gt), bool)
+        for box, s, c in sorted((p for p in r.preds if p[2] == target_class and r._ok(p[0])), key=lambda p: -p[1]):
             hit = 0
-            if len(r.gt):
-                ious = iou_one_to_many(np.asarray(box), r.gt)
+            if len(gt):
+                ious = iou_one_to_many(np.asarray(box), gt)
                 ious[used] = -1
                 j = int(ious.argmax())
                 if ious[j] >= iou_thr:
@@ -176,14 +193,14 @@ class GroupStats:
 
 
 def group_stats(records: Sequence[ImageRecord], threshold: float, key: Callable[[ImageRecord], str],
-                iou_thr: float = 0.5) -> dict[str, dict]:
+                iou_thr: float = 0.5, target_class: int = 0) -> dict[str, dict]:
     groups: dict[str, GroupStats] = defaultdict(GroupStats)
     for r in records:
         g = groups[key(r)]
-        tp, fp, fn = match(r, threshold, iou_thr)
+        tp, fp, fn = match(r, threshold, iou_thr, target_class)
         g.n_images += 1
         g.det_tp, g.det_fp, g.det_fn = g.det_tp + tp, g.det_fp + fp, g.det_fn + fn
-        if r.positive:
+        if r.has(target_class):
             g.n_pos += 1
             g.tp_images += tp > 0
             g.fn_images += tp == 0
@@ -193,20 +210,40 @@ def group_stats(records: Sequence[ImageRecord], threshold: float, key: Callable[
     return {k: v.row() for k, v in sorted(groups.items())}
 
 
-def overall(records: Sequence[ImageRecord], threshold: float, iou_thr: float = 0.5) -> dict:
-    out = group_stats(records, threshold, lambda r: "all", iou_thr).get("all", GroupStats().row())
+def overall(records: Sequence[ImageRecord], threshold: float, iou_thr: float = 0.5, target_class: int = 0) -> dict:
+    out = group_stats(records, threshold, lambda r: "all", iou_thr, target_class).get("all", GroupStats().row())
     tp, fp, fn = out["det_tp"], out["det_fp"], out["det_fn"]
     out["precision"] = tp / (tp + fp) if tp + fp else None
     out["recall"] = tp / (tp + fn) if tp + fn else None
     p, rc = out["precision"], out["recall"]
     out["f1"] = 2 * p * rc / (p + rc) if p and rc else (0.0 if p is not None and rc is not None else None)
-    out["ap50"] = average_precision(records, iou_thr)
+    out["ap50"] = average_precision(records, iou_thr, target_class)
     # image-level confusion matrix: rows = actual, cols = predicted
     out["confusion_image_level"] = {
         "actual_target__pred_target": out["tp_images"], "actual_target__pred_none": out["fn_images"],
         "actual_none__pred_target": out["fp_images"], "actual_none__pred_none": out["negative_images"] - out["fp_images"],
     }
     return out
+
+
+def shown_label(rec: ImageRecord, thr_target: float, thr_other: float | None) -> str:
+    """What the app would show for this image: 'rs50' (green) wins, else 'other' (red), else 'none'."""
+    if any(c == 0 and s >= thr_target and rec._ok(b) for b, s, c in rec.preds):
+        return "rs50"
+    if thr_other is not None and any(c == 1 and s >= thr_other and rec._ok(b) for b, s, c in rec.preds):
+        return "other"
+    return "none"
+
+
+def note_type_table(records: Sequence[ImageRecord], thr_target: float, thr_other: float | None,
+                    key: Callable[[ImageRecord], str]) -> dict[str, dict]:
+    """Per group: how many images end up shown as Rs.50 / Other note / nothing, with counts (the app's real output)."""
+    out: dict[str, dict] = {}
+    for r in records:
+        g = out.setdefault(key(r), {"images": 0, "shown_rs50": 0, "shown_other": 0, "shown_none": 0})
+        g["images"] += 1
+        g["shown_" + shown_label(r, thr_target, thr_other)] += 1
+    return dict(sorted(out.items()))
 
 
 def latency_summary(records: Sequence[ImageRecord]) -> dict:
