@@ -1,0 +1,82 @@
+{
+  "model": "runs\\rs50_split2\\model_split2.onnx",
+  "size_bytes": 12700634,
+  "sha256": "46100956e47e3d19ea62eb56921ef4531048dc0155de0984615d851062ddde8a",
+  "inputs": "[('images', [1, 3, 480, 480], 1)]",
+  "outputs": "[('output0', [1, 6, 4725])]",
+  "opset": [
+    12
+  ],
+  "test_images": "12 images from dataset\\images\\pool",
+  "latency_ms_median": 106.69045001850463,
+  "opencv": "5.0.0",
+  "numpy": "2.5.4",
+  "passed": true,
+  "checks": [
+    {
+      "check": "file exists",
+      "status": "PASS",
+      "detail": "12.7 MB, sha256 46100956e47e"
+    },
+    {
+      "check": "ONNX graph valid",
+      "status": "PASS",
+      "detail": "inputs [('images', [1, 3, 480, 480], 1)], outputs [('output0', [1, 6, 4725])], opset [12]"
+    },
+    {
+      "check": "input is float32 NCHW 3-channel",
+      "status": "PASS",
+      "detail": "[1, 3, 480, 480] elem_type=1"
+    },
+    {
+      "check": "loads in OpenCV (cv2.dnn)",
+      "status": "PASS",
+      "detail": "OpenCV 5.0.0, init 231 ms"
+    },
+    {
+      "check": "output layout recognised",
+      "status": "PASS",
+      "detail": "shape (1, 6, 4725) -> channels_first"
+    },
+    {
+      "check": "class head is Rs.50 (+ optional 'other note')",
+      "status": "PASS",
+      "detail": "2 class channel(s)"
+    },
+    {
+      "check": "test inputs",
+      "status": "PASS",
+      "detail": "12 images from dataset\\images\\pool"
+    },
+    {
+      "check": "inference runs, output finite",
+      "status": "PASS",
+      "detail": "12 images"
+    },
+    {
+      "check": "class scores within [0,1]",
+      "status": "PASS",
+      "detail": "min 0.0000 max 0.9348"
+    },
+    {
+      "check": "OpenCV vs ONNX Runtime raw tensors",
+      "status": "PASS",
+      "detail": "max box diff 0.0009308 px, max score diff 1.67e-06"
+    },
+    {
+      "check": "PyTorch vs OpenCV raw tensors",
+      "status": "PASS",
+      "detail": "max box diff 0.0008545 px, max score diff 1.07e-06"
+    },
+    {
+      "check": "PyTorch vs OpenCV decoded detections",
+      "status": "PASS",
+      "detail": "13/13 top detections matched at IoU>=0.9 (100.0%)"
+    },
+    {
+      "check": "latency measured",
+      "status": "PASS",
+      "detail": "median 106.7 ms/frame forward pass over 10 runs (this machine)"
+    }
+  ]
+}
