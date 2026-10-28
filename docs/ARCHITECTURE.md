@@ -31,14 +31,14 @@ phone photos ─► capture_dataset.py ingest ─► annotate.py ─► split_da
 | `dataset.py` | manifest I/O, YOLO label validation, auditor (dHash near-duplicates, session leakage, coverage) |
 | `metrics.py` | IoU matching, threshold sweep, AP, per-group stats, Wilson intervals |
 
-## Verified model-I/O contract (Ultralytics YOLOv8n export, single class)
+## Verified model-I/O contract (Ultralytics YOLOv8n export; the shipped model has 2 classes, 1-class models also load)
 
 | item | value | where verified |
 |---|---|---|
 | input | `images` float32 `(1,3,S,S)`, RGB, 0–1, letterbox pad 114 | `validate_onnx.py` graph check + PyTorch parity |
-| output | `output0` float32 `(1, 5, N)`: rows `cx,cy,w,h,score`; N = 8400 @640, 4725 @480, 2100 @320 | exported shapes |
+| output | `output0` float32 `(1, 4+nc, N)`: rows `cx,cy,w,h,score₀[,score₁]` (nc = 2 shipped); N = 8400 @640, 4725 @480, 2100 @320 | exported shapes |
 | scores | sigmoid already applied, in [0,1] | `validate_onnx.py` range check |
-| NMS | **not** embedded; done in `postprocessing.nms` (IoU 0.45, class-aware) | PyTorch decoded-detection parity |
+| NMS | **not** embedded; done in `postprocessing.nms` (IoU 0.45, class-agnostic: one box per note) | PyTorch decoded-detection parity |
 | opset | 12, fixed size, FP32 | `export_onnx.py` |
 
 Other layouts (`(1,N,4+nc)`, end-to-end `(1,N,6)`) are decoded too and unit-tested, but only the first has been
@@ -48,8 +48,10 @@ exercised with a real exported network.
 
 * **YOLOv8n, not YOLO11 / larger.** Plain conv/SiLU/C2f graph that OpenCV's DNN importer handles at opset 12
   (verified on OpenCV 5.0.0; 4.12 check recorded in the acceptance report); 3 M parameters, 12 MB ONNX.
-* **One class.** Front and back are both `fifty_rupee_note`. All other denominations are *background* (empty
-  labels), which teaches the detector to reject them. The evaluation reports each negative denomination separately.
+* **Two classes.** Front and back are both class 0 `fifty_rupee_note`. All other denominations are class 1 `other_note` (red
+  box): the detector learns "a banknote that is not a ₹50" explicitly instead of treating other notes as empty background, and the
+  app can show it. Green ₹50 wins over red when both fire; the red box never names the denomination. No-note images keep empty
+  labels. The evaluation reports each denomination separately.
 * **Input size 480 by default.** Forward-pass time on the 2-core dev laptop (random-init yolov8n, median of 20, OpenCV 5.0):
   640 → ~115 ms, 480 → ~62 ms, 416 → ~47 ms, 320 → ~24 ms. 480 was chosen for a usable frame rate; `train.py --imgsz 640` is
   supported and the choice should be revisited with real validation numbers.
