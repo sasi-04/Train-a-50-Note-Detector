@@ -2,24 +2,23 @@
   "errors": [],
   "warnings": [
     "unsupported file in images/: .gitkeep",
-    "317 other-denomination images have no 'other note' box yet (label_status unlabeled): they are EXCLUDED from training until boxed or removed",
-    "156 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)",
+    "151 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)",
     "only 28 front-side target images (recommended >= 100)",
     "only 17 back-side target images (recommended >= 100)",
     "no images of the OLD Rs.50 note (not the target; recommended as a hard negative)"
   ],
   "stats": {
-    "total_images": 738,
-    "images_on_disk": 738,
-    "manifest_hash": "d9ba7f613ddb79ac",
+    "total_images": 689,
+    "images_on_disk": 689,
+    "manifest_hash": "11c573e30d49235d",
     "by_denomination": {
       "50_new": 120,
       "background": 139,
-      "10": 95,
-      "20": 96,
-      "200": 95,
-      "100": 99,
-      "500": 94
+      "10": 85,
+      "20": 86,
+      "200": 86,
+      "100": 88,
+      "500": 85
     },
     "target_by_side": {
       "front": 28,
@@ -27,37 +26,37 @@
       "unknown": 75
     },
     "by_split": {
-      "train": 335,
-      "test": 203,
-      "val": 200
+      "train": 308,
+      "test": 193,
+      "val": 188
     },
     "by_split_and_denomination": {
       "train": {
         "50_new": 55,
         "background": 65,
-        "100": 45,
-        "10": 42,
-        "200": 43,
-        "20": 42,
-        "500": 43
+        "100": 38,
+        "10": 36,
+        "200": 39,
+        "20": 38,
+        "500": 37
       },
       "test": {
         "50_new": 36,
-        "10": 23,
-        "20": 31,
-        "200": 29,
-        "100": 23,
-        "500": 23,
+        "10": 22,
+        "20": 29,
+        "200": 28,
+        "100": 19,
+        "500": 21,
         "background": 38
       },
       "val": {
         "50_new": 29,
         "background": 36,
         "100": 31,
-        "10": 30,
-        "200": 23,
-        "500": 28,
-        "20": 23
+        "10": 27,
+        "200": 19,
+        "500": 27,
+        "20": 19
       }
     },
     "sessions": {
@@ -68,28 +67,28 @@
       "scan_test_crop": 11,
       "scan_train": 33,
       "scan_val": 22,
-      "webcam_s01": 282,
-      "webcam_s02": 165,
-      "webcam_s03": 174
+      "webcam_s01": 255,
+      "webcam_s02": 153,
+      "webcam_s03": 164
     },
     "by_source": {
       "phone": 117,
-      "webcam": 621
+      "webcam": 572
     },
     "by_lighting": {
-      "unknown": 738
+      "unknown": 689
     },
     "resolution_buckets": {
-      "<= 1600": 738
+      "<= 1600": 689
     },
     "boxes_per_image": {
-      "0": 456,
-      "1": 282
+      "0": 139,
+      "1": 550
     },
     "label_files_missing": 0,
-    "other_note_images_not_yet_boxed": 317,
+    "other_note_images_not_yet_boxed": 0,
     "blurry_images_laplacian_var_lt_20": 5,
-    "near_duplicate_pairs_same_split": 156,
+    "near_duplicate_pairs_same_split": 151,
     "cross_split_near_duplicates": 0
   },
   "ready_for_training": true,
