@@ -120,7 +120,12 @@ def main() -> int:
             print(f"note: {model_src} will be downloaded by Ultralytics (COCO weights; internet required once)")
         model = YOLO(str(model_src))
         model.train(data=str(data_yaml), project=str(run_root), name=name, exist_ok=True, seed=seed,
+                    single_cls=False,  # a checkpoint's old train_args (single_cls=True) would otherwise be inherited
                     verbose=True, **tr)
+        got_nc = int(getattr(getattr(model, "model", None), "nc", 0) or 0)
+        if got_nc != 2:
+            print(f"error: trained model has {got_nc} class(es), expected 2 (Rs.50 + other note); not usable", file=sys.stderr)
+            return 1
 
     best = run_dir / "weights" / "best.pt"
     info = {
