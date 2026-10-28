@@ -23,7 +23,12 @@ def add(paths, rows, session, den, side="front", split="", box=True, seed=None, 
     if label_text is not None:
         lab.write_text(label_text)
     else:
-        write_label_file(lab, [(0, 0.5, 0.5, 0.5, 0.5)] if (box and den in ("50_new", "mixed")) else [])
+        if box and den in ("50_new", "mixed"):
+            write_label_file(lab, [(0, 0.5, 0.5, 0.5, 0.5)])
+        elif box and den in ("10", "20", "100", "200", "500"):
+            write_label_file(lab, [(1, 0.5, 0.5, 0.5, 0.5)])  # 'other note' class
+        else:
+            write_label_file(lab, [])
     rows.append({"image_id": iid, "filename": fn, "denomination": den, "side": side, "lighting": "normal",
                  "angle": "frontal", "background": "plain", "source": "phone", "session": session, "split": split,
                  "label_status": "annotated", "notes": "", "sha256": sha256_file(paths.images / fn)})
@@ -65,6 +70,19 @@ def test_missing_object_negatives_blocks_unless_explicitly_allowed(tmp_path):
     assert res.ready_for_training and any("NO ordinary-object" in w for w in res.warnings)
 
 
+def test_unboxed_other_notes_warn_and_wrong_class_errors(tmp_path):
+    paths, rows = build_complete(tmp_path)
+    others = [r for r in rows if r["denomination"] == "20"]
+    others[0]["label_status"] = "unlabeled"
+    write_label_file(paths.labels / (others[0]["image_id"] + ".txt"), [])
+    write_label_file(paths.labels / (others[1]["image_id"] + ".txt"), [])        # 'annotated' but no box
+    save_manifest(paths, rows)
+    res = audit_dataset(paths.root)
+    assert any("no 'other note' box yet" in w for w in res.warnings)
+    assert any("marked annotated but has no other-note box" in e for e in res.errors)
+    assert res.stats["other_note_images_not_yet_boxed"] == 1
+
+
 def test_empty_dataset_not_ready(tmp_path):
     res = audit_dataset(tmp_path / "nothing")
     assert not res.ready_for_training and "no images in the dataset" in res.readiness_blockers
@@ -97,7 +115,7 @@ def test_target_with_empty_label_and_negative_with_box(tmp_path):
     write_label_file(paths.labels / (target["image_id"] + ".txt"), [])
     write_label_file(paths.labels / (neg["image_id"] + ".txt"), [(0, 0.5, 0.5, 0.5, 0.5)])
     errs = " ".join(audit_dataset(paths.root).errors)
-    assert "label is empty" in errs and "negative but label contains target boxes" in errs
+    assert "no Rs.50 box" in errs and "contains a Rs.50 box" in errs
 
 
 def test_corrupted_and_blank_images(tmp_path):
@@ -123,7 +141,8 @@ def test_cross_split_near_duplicate_flagged_as_leakage(tmp_path):
     src = next(r for r in rows if r["split"] == "train")
     img = cv2.imread(str(paths.images / src["filename"]))
     cv2.imwrite(str(paths.images / "leak.jpg"), np.clip(img.astype(int) + 1, 0, 255).astype(np.uint8))
-    write_label_file(paths.labels / "leak.txt", [(0, 0.5, 0.5, 0.5, 0.5)] if src["denomination"] == "50_new" else [])
+    cls = 0 if src["denomination"] == "50_new" else 1
+    write_label_file(paths.labels / "leak.txt", [(cls, 0.5, 0.5, 0.5, 0.5)] if src["denomination"] != "object" else [])
     leak = dict(src, image_id="leak", filename="leak.jpg", split="test", session="s4", sha256="")
     save_manifest(paths, rows + [leak])
     assert any("possible leakage" in e for e in audit_dataset(paths.root).errors)
@@ -150,7 +169,7 @@ def test_denomination_is_never_inferred_from_filename(tmp_path):
     r = next(r for r in rows if r["denomination"] == "20")
     r["denomination"] = "50_new"  # filename still says '20'; manifest + label disagree -> must be flagged
     save_manifest(paths, rows)
-    assert any("label is empty" in e for e in audit_dataset(paths.root).errors)
+    assert any("no Rs.50 box" in e for e in audit_dataset(paths.root).errors)
 
 
 def test_manifest_hash_changes_with_metadata(tmp_path):

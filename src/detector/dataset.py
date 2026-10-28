@@ -20,7 +20,11 @@ POOL = "pool"
 
 DENOMINATIONS = ["50_new", "50_old", "10", "20", "100", "200", "500", "object", "background", "mixed", "unknown"]
 REQUIRED_NEGATIVE_DENOMS = ["10", "20", "100", "200", "500"]
+OTHER_NOTE_DENOMS = set(REQUIRED_NEGATIVE_DENOMS)
 NON_NOTE = {"object", "background"}
+# Class ids in the label files: 0 = the target Rs.50, 1 = any other banknote (shown with a red box, never as Rs.50).
+NUM_CLASSES = 2
+OTHER_CLASS_ID = 1
 SIDES = ["front", "back", "na", "unknown"]
 LIGHTING = ["bright", "normal", "dim", "uneven", "shadow", "unknown"]
 ANGLES = ["frontal", "tilted", "steep", "unknown"]
@@ -197,7 +201,7 @@ class AuditResult:
         return json.dumps(self.__dict__, indent=2, default=str)
 
 
-def audit_dataset(root: Path | str, num_classes: int = 1, near_dup_distance: int = NEAR_DUP_DISTANCE,
+def audit_dataset(root: Path | str, num_classes: int = NUM_CLASSES, near_dup_distance: int = NEAR_DUP_DISTANCE,
                   require_non_notes: bool = True) -> AuditResult:
     """Inspect actual files on disk and the manifest; never trusts filenames for denomination."""
     paths = DatasetPaths(Path(root))
@@ -227,6 +231,7 @@ def audit_dataset(root: Path | str, num_classes: int = 1, near_dup_distance: int
     usable: list[Path] = []
     box_counts: Counter = Counter()
     unlabeled = 0
+    unboxed_other = 0
 
     for r in rows:
         for key, allowed in VOCAB.items():
@@ -274,10 +279,22 @@ def audit_dataset(root: Path | str, num_classes: int = 1, near_dup_distance: int
         box_counts[len(lr.boxes)] += 1
         if row:
             den = row["denomination"]
-            if den in ("50_new", "mixed") and not lr.boxes and not lr.issues:
-                err.append(f"{p.name}: denomination '{den}' but label is empty (missing annotation)")
-            if den not in ("50_new", "mixed", "unknown", "") and lr.boxes:
-                err.append(f"{p.name}: denomination '{den}' is a negative but label contains target boxes")
+            classes = {b[0] for b in lr.boxes}
+            if den in ("50_new", "mixed") and 0 not in classes and not lr.issues:
+                err.append(f"{p.name}: denomination '{den}' but label has no Rs.50 box (missing annotation)")
+            if den == "50_new" and 1 in classes:
+                err.append(f"{p.name}: denomination '50_new' but label contains an other-note box")
+            if den in OTHER_NOTE_DENOMS:
+                if 0 in classes:
+                    err.append(f"{p.name}: denomination '{den}' but label contains a Rs.50 box")
+                if row["label_status"] == "unlabeled":
+                    unboxed_other += 1
+                elif num_classes > 1 and 1 not in classes and not lr.issues:
+                    err.append(f"{p.name}: denomination '{den}' is marked annotated but has no other-note box")
+            elif den in NON_NOTE and lr.boxes:
+                err.append(f"{p.name}: '{den}' contains no note but the label has boxes")
+            elif den in ("50_old",) and 0 in classes:
+                err.append(f"{p.name}: old Rs.50 is not the target but the label has a Rs.50 box")
             if row["label_status"] == "unlabeled" and den in ("50_new", "mixed"):
                 warn.append(f"{p.name}: label_status 'unlabeled' (annotation not reviewed)")
     for lab in (paths.labels.glob("*.txt") if paths.labels.is_dir() else []):
@@ -300,6 +317,9 @@ def audit_dataset(root: Path | str, num_classes: int = 1, near_dup_distance: int
         err.append(f"possible leakage: {a} ({sa}) is a near-duplicate of {b} ({sb})")
     if len(leaks) > 50:
         err.append(f"... and {len(leaks) - 50} more possible leaks")
+    if unboxed_other:
+        warn.append(f"{unboxed_other} other-denomination images have no 'other note' box yet (label_status unlabeled): "
+                    "they are EXCLUDED from training until boxed or removed")
     if same_split_dups:
         warn.append(f"{same_split_dups} near-duplicate pairs within the same split/session "
                     "(expected for burst captures; consider thinning them)")
@@ -388,6 +408,7 @@ def audit_dataset(root: Path | str, num_classes: int = 1, near_dup_distance: int
         "resolution_buckets": dict(sizes),
         "boxes_per_image": {str(k): v for k, v in sorted(box_counts.items())},
         "label_files_missing": unlabeled,
+        "other_note_images_not_yet_boxed": unboxed_other,
         "blurry_images_laplacian_var_lt_20": len(blurry),
         "near_duplicate_pairs_same_split": same_split_dups,
         "cross_split_near_duplicates": len(leaks),
