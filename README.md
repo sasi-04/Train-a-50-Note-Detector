@@ -9,16 +9,19 @@ YOLOv8n is trained on the developer's own phone photographs, exported to **ONNX*
 python test.py --model model.onnx
 ```
 
-> **Status (read first).** `model.onnx` (YOLOv8n, 480 px, 12.7 MB, two classes) is trained on **689 of the developer's own
-> captures**: 117 phone/scanner images plus **572 frames from the developer's webcam** (the camera type the demo uses): 120 boxed
-> images of the new ₹50 (**one physical note**, front/back/sideways), 430 boxed images of ₹10/₹20/₹100/₹200/₹500 held in hand
-> (one copy of each), and 139 no-note scenes (room, people, paper, phone, a blue-green window). The data are still **narrow**.
+> **Status (read first).** `model.onnx` (YOLOv8n, 480 px, 12.7 MB, two classes) is trained on **801 of the developer's own
+> captures**: 117 phone/scanner images plus **684 frames from the developer's webcam** (the camera type the demo uses): 198 boxed
+> images of the new ₹50 (**one physical note**, front/back/sideways/**upright**), 464 boxed images of ₹10/₹20/₹100/₹200/₹500 held
+> in hand (one copy of each), and 139 no-note scenes (room, people, paper, phone, a blue-green window). The data are still
+> **narrow**.
 >
-> Measured honestly on a **held-out webcam session** (details and caveats in [docs/EVALUATION.md](docs/EVALUATION.md)): the
-> evaluation model showed a green ₹50 on **33 of 36 (92 %)** real ₹50 frames, and **never** called another note, a face, paper
-> or a window a ₹50 (**0 of 157**; true rate could still be up to ~2.4 %). Other notes got a red "Other note" box on 84 of 119
-> frames (71 %), the rest showed nothing. The *shipped* model was then fine-tuned on all images, so no held-out number exists for
-> it. A 200-frame live webcam run with no note shown gave 0 ₹50 and 0 red boxes. Expect some misses; hold the note steady and lit.
+> Measured honestly on a **held-out test** (details and caveats in [docs/EVALUATION.md](docs/EVALUATION.md)): the evaluation
+> model showed a green ₹50 on **67 of 68** real ₹50 frames, including **32 of 32 upright** frames from a session recorded after
+> training (the previous model found 4 of 32). **The price: 8 of 191 non-₹50 images (4.2 %; CI up to 8 %) were also called ₹50**,
+> six full-frame ₹200 scan crops and two webcam frames of a ceiling (the previous model: 0 of 191). Other notes got a red "Other
+> note" box on 138 of 153. The *shipped* model was then fine-tuned on all images, so no held-out number exists for it. A
+> 200-frame live webcam run with no note shown gave 0 ₹50 and 0 red boxes. Expect some misses and some false alarms; hold the note
+> steady and lit.
 > Full audit: [docs/ACCEPTANCE_REPORT.md](docs/ACCEPTANCE_REPORT.md).
 
 ## What you should see when you run it
@@ -84,11 +87,11 @@ python test.py --help
 Exit codes: 0 ok · 2 bad arguments · 3 model missing/unloadable · 4 camera problem · 5 repeated inference failure.
 A failed inference is shown as an error banner and never as "no detection" or a ₹50.
 
-**Operating thresholds.** `configs/inference.yaml` holds **₹50 = 0.62** and **other note = 0.82** (`other_threshold`), selected by
-`scripts/evaluate.py --select-threshold` on the **validation** webcam session of the evaluation model (0 false ₹50 on 159
-negative images, ₹50 recall 93 %; other-note recall 88 %); the middle of each safe range is used, not its edge. The shipped model
-reuses them. A higher ₹50 threshold reduces false positives but misses more genuine notes: `--threshold 0.50` is more sensitive,
-`--threshold 0.75` stricter. Curves: `reports/threshold_analysis_val.png`, `reports/threshold_sweep_val.csv`,
+**Operating thresholds.** `configs/inference.yaml` holds **₹50 = 0.27** and **other note = 0.37** (`other_threshold`), selected by
+`scripts/evaluate.py --select-threshold` on the **validation** split of the evaluation model (0 false ₹50 on 159 negative
+images, ₹50 recall 100 % (29/29); other-note recall 97 %); the middle of each safe range is used, not its edge. The shipped model
+reuses them. On the held-out test the ₹50 score did not matter between 0.13 and 0.43 (the 8 false alarms score 0.65–0.85; see
+docs/EVALUATION.md), so `--threshold` mostly changes how many weak candidates are shown. Use `--threshold 0.5` for fewer weak boxes. Curves: `reports/threshold_analysis_val.png`, `reports/threshold_sweep_val.csv`,
 `reports/threshold_sweep_other_val.csv`. Press `+`/`-` while running to adjust the ₹50 threshold live.
 
 ## Complete workflow: photos → model → evaluation
@@ -169,7 +172,7 @@ Each label line: `0 cx cy w h`, normalised to [0,1]; class `0 = fifty_rupee_note
 ## Tests
 
 ```bash
-pytest -q          # 125 tests, ~30 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
+pytest -q          # 127 tests, ~30 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
 ```
 
 Tests that use fixture or random-weight ONNX models verify *mechanics* (loading, decoding, coordinate mapping,

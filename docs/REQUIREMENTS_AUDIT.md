@@ -12,15 +12,15 @@ Environment: Windows 10, Python 3.14.4, OpenCV 5.0.0 (and 4.14.0), i5-7300U, web
 | R3 | No downloaded note images | none used; an RBI-ad PDF folder was supplied, declined and gitignored | `.gitignore`, review | **PASS** | – |
 | R4 | No printed/photocopied/fake notes | none; no generated images in `dataset/` | review | **PASS** | – |
 | R5 | Any model (YOLO recommended) | YOLOv8n | `runs/*/run_info.json` | **PASS** | – |
-| R6 | Dataset + labels in `dataset/` | 689 images + YOLO labels + manifest | `dataset/` | **PASS** | review faces/bystanders before push |
+| R6 | Dataset + labels in `dataset/` | 801 images + YOLO labels + manifest | `dataset/` | **PASS** | review faces/bystanders before push |
 | R7 | Source code (training + test script) | `scripts/train.py`, `test.py`, `src/detector` | repo | **PASS** | – |
-| R8 | Model in ONNX, loads in OpenCV | `model.onnx` (12.7 MB), `cv2.dnn` only | `validate_onnx.py` PASS; 125 tests incl. real model | **PASS** | – |
+| R8 | Model in ONNX, loads in OpenCV | `model.onnx` (12.7 MB), `cv2.dnn` only | `validate_onnx.py` PASS; 127 tests incl. real model | **PASS** | – |
 | R9 | `test.py`: webcam, box labelled ₹50 + confidence | implemented | 200-frame webcam run; rendered frame; tests | **PASS** | repeat the live positive test on the reviewing machine |
 | R10 | README: install and run | `README.md` | review | **PASS** | – |
 | R11 | `python test.py --model model.onnx` | supported | run on the webcam | **PASS** | – |
-| R12 | Detect ₹50 reliably | held-out webcam session: 33/36 (92 %) shown as ₹50; front 8/8, back 5/6; AP@0.5 0.94 | `docs/EVALUATION.md` | **PASS (small sample)** | blurred/hidden frames missed; a reviewer's note and camera |
-| R13 | Do not show ₹50 for other notes/objects | thresholds 0.62 / 0.82 on val; held-out test 0/157 non-₹50 images labelled ₹50 (CI ≤ 2.4 %), other notes get a red box (84/119); live 0/200 frames | EVALUATION.md | **PASS (measured, small sample)** | a reviewer's other notes/rooms |
-| R14 | One public GitHub repository | local git with ~25 descriptive commits (`sasi-04`); remote set; latest history not yet pushed | `git log` | **PARTIAL** | developer's go-ahead / force-push |
+| R12 | Detect ₹50 reliably | held-out test: 67/68 shown as ₹50 incl. upright 32/32; front 8/8, back 3/6; AP@0.5 0.91 | `docs/EVALUATION.md` | **PASS (small sample)** | back side; a reviewer's note and camera |
+| R13 | Do not show ₹50 for other notes/objects | thresholds 0.27 / 0.37 on val; held-out test **8/191 non-₹50 images labelled ₹50** (CI ≤ 8.0 %: 6 full-frame ₹200 scan crops, 2 ceiling frames), other notes get a red box (138/153); live 0/200 frames | EVALUATION.md | **PARTIAL (measured; worse than the previous model's 0/191)** | the ceiling-type false alarm; a reviewer's other notes/rooms |
+| R14 | One public GitHub repository | local git with 60+ descriptive commits (`sasi-04`); remote set; the last commits are not yet pushed | `git log` | **PARTIAL** | developer's go-ahead (`git push origin main`) |
 
 Engineering extras (all verified by runs/tests): dataset auditor with leakage detection, threshold selection on val only,
 stress test, ONNX validator with PyTorch/ONNX-Runtime parity, reproducibility records, camera failure handling, temporal
