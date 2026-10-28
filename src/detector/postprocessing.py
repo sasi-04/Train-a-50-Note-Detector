@@ -106,8 +106,13 @@ def decode_output(
     nms_iou: float = 0.45,
     max_det: int = 100,
     min_side_px: float = 2.0,
+    class_agnostic: bool = True,
 ) -> list[Candidate]:
-    """Raw network output -> NMS-filtered candidates (all classes) above ``score_floor``."""
+    """Raw network output -> NMS-filtered candidates (all classes) above ``score_floor``.
+
+    ``class_agnostic`` (default): one NMS across classes, so an object that two class scores both claim yields a
+    single box carrying the higher-scoring class instead of a Rs.50 box AND an 'other note' box on the same note.
+    """
     arr = np.asarray(output)
     if not np.issubdtype(arr.dtype, np.floating):
         raise OutputFormatError(f"model output must be floating point, got {arr.dtype}")
@@ -144,10 +149,10 @@ def decode_output(
         return []
 
     result: list[Candidate] = []
-    for c in np.unique(cls):  # class-aware NMS
-        idx = np.nonzero(cls == c)[0]
+    groups = [np.arange(len(cls))] if class_agnostic else [np.nonzero(cls == c)[0] for c in np.unique(cls)]
+    for idx in groups:
         for k in nms(boxes[idx], scores[idx], nms_iou):
             j = idx[k]
-            result.append(Candidate(*(float(v) for v in boxes[j]), float(scores[j]), int(c)))
+            result.append(Candidate(*(float(v) for v in boxes[j]), float(scores[j]), int(cls[j])))
     result.sort(key=lambda d: -d.score)
     return result[:max_det]

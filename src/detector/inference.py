@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 
 from .logging_utils import get_logger
-from .postprocessing import Candidate, OutputFormatError, decode_output
+from .postprocessing import Candidate, OutputFormatError, decode_output, describe_layout
 from .preprocessing import InvalidImageError, LetterboxMeta, preprocess
 
 FALLBACK_SIZES = (640, 480, 416, 320)
@@ -102,6 +102,16 @@ class OnnxDetector:
             "Loaded %s via OpenCV %s (imgsz=%d, output shape %s, init %.0f ms)",
             self.model_path.name, cv2.__version__, self.imgsz, self.layout_shape, self.init_ms,
         )
+
+    @property
+    def num_classes(self) -> int | None:
+        """Number of class channels of a (1, 4+nc, N) head; None for layouts where it cannot be read from the shape."""
+        s = self.layout_shape
+        if len(s) == 3 and describe_layout(s) == "channels_first":
+            return s[1] - 4
+        if len(s) == 3 and describe_layout(s) == "channels_last":
+            return s[2] - 4
+        return None
 
     def _forward_blob(self, blob: np.ndarray) -> np.ndarray:
         self.net.setInput(blob)
