@@ -30,7 +30,7 @@ from detector.config import DEFAULT_CONFIG_PATH, load_config
 from detector.dataset import DatasetPaths, load_manifest, manifest_hash, sha256_file
 from detector.inference import OnnxDetector
 from detector.metrics import (DEFAULT_THRESHOLDS, average_precision, collect_predictions, group_stats,
-                              latency_summary, overall, sweep)
+                              latency_summary, note_type_table, overall, sweep)
 from detector.thresholding import select_threshold
 
 REQUIRED_SCENARIOS = {
@@ -117,7 +117,7 @@ def main() -> int:
 
     paths = DatasetPaths(Path(a.dataset))
     all_rows = load_manifest(paths)
-    rows = [r for r in all_rows if r["split"] == a.split]
+    rows = [r for r in all_rows if r["split"] == a.split and r["label_status"] != "unlabeled"]
     if not rows:
         print(f"error: no images in split '{a.split}'. Collect data, then run split_dataset.py.", file=sys.stderr)
         return 1
@@ -147,6 +147,26 @@ def main() -> int:
     thr_pt = next((p for p in pts if abs(p.threshold - threshold) < 1e-9), None)
     res = overall(records, threshold, a.iou)
 
+    # ---- second class: 'other note' (red box) ----------------------------------------------------------------
+    two_class = (detector.num_classes or 1) > 1
+    other_thr = other_status = other_sel = res_other = None
+    if two_class:
+        pts1 = sweep(records, DEFAULT_THRESHOLDS, a.iou, target_class=1)
+        if a.select_threshold:
+            best1, why1 = select_threshold(pts1, a.max_neg_fp_rate, a.min_recall)
+            other_thr, other_sel, other_status = best1.threshold, {"rule": why1}, "selected on validation split"
+        else:
+            other_thr, other_status = cfg.other_threshold, "from configs/inference.yaml"
+        res_other = overall(records, other_thr, a.iou, target_class=1)
+        res_other["threshold"] = other_thr
+        with (Path(a.out) / f"threshold_sweep_other_{a.split}.csv").open("w", newline="") as fh:
+            w1 = csv.writer(fh)
+            w1.writerow(["threshold", "tp", "fp", "fn", "precision", "recall", "neg_images", "neg_images_with_fp"])
+            Path(a.out).mkdir(parents=True, exist_ok=True)
+            for p in pts1:
+                w1.writerow([p.threshold, p.tp, p.fp, p.fn, f"{p.precision:.4f}", f"{p.recall:.4f}" if p.recall == p.recall else "",
+                             p.neg_images, p.neg_images_with_fp])
+
     report = {
         "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "split": a.split, "threshold": threshold, "threshold_status": status, "threshold_selection": selection,
@@ -165,6 +185,9 @@ def main() -> int:
         "required_scenarios": {name: (group_stats([r for r in records if fn(r)], threshold, lambda r: name, a.iou).get(name, "NOT TESTED"))
                                for name, fn in REQUIRED_SCENARIOS.items()},
         "latency": latency_summary(records),
+        "two_class_model": two_class, "other_threshold": other_thr, "other_threshold_status": other_status,
+        "other_threshold_selection": other_sel, "other_note_overall": res_other,
+        "app_output_by_denomination": note_type_table(records, threshold, other_thr, lambda r: r.meta["denomination"]),
     }
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -196,6 +219,18 @@ def main() -> int:
            "| | predicted ₹50 | predicted none |", "|---|---|---|",
            f"| actual ₹50 | {res['confusion_image_level']['actual_target__pred_target']} | {res['confusion_image_level']['actual_target__pred_none']} |",
            f"| actual none | {res['confusion_image_level']['actual_none__pred_target']} | {res['confusion_image_level']['actual_none__pred_none']} |", ""]
+    md += ["## What the app shows, per denomination (green ₹50 wins over red 'Other note')", "",
+           f"Thresholds: ₹50 {threshold:.2f}" + (f", other note {other_thr:.2f} ({other_status})" if two_class else " (single-class model: no red box)"),
+           "", "| denomination | images | shown ₹50 (green) | shown Other note (red) | shown nothing |", "|---|---|---|---|---|"]
+    for k, g in report["app_output_by_denomination"].items():
+        md.append(f"| {k} | {g['images']} | {g['shown_rs50']} | {g['shown_other']} | {g['shown_none']} |")
+    md.append("")
+    if res_other:
+        md += [f"- 'Other note' class at threshold {other_thr:.2f}: TP {res_other['det_tp']}, FP {res_other['det_fp']}, FN {res_other['det_fn']}; "
+               f"precision {fmt(res_other['precision'], True)}, recall {fmt(res_other['recall'], True)}; AP@{a.iou} {fmt(res_other['ap50'])}",
+               ""]
+        if other_sel:
+            md += [f"- Other-note threshold selection: {other_sel['rule']}", ""]
     md += group_table("By denomination", report["by_denomination"])
     md += group_table("Target note by side", {k: v for k, v in report["by_side"].items() if k.startswith(("50_new", "mixed"))})
     md += group_table("By lighting", report["by_lighting"])
@@ -221,6 +256,8 @@ def main() -> int:
     if a.write_config:
         cfg_path = Path(a.config)
         data = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) if cfg_path.is_file() else {}
+        if two_class:
+            data.update(other_class_id=1, other_threshold=float(other_thr))
         data.update(threshold=float(threshold), threshold_validated=True, imgsz=detector.imgsz,
                     threshold_source=f"val sweep, {len(rows)} images, model {report['model']['sha256'][:12]}, {report['generated_utc'][:10]}")
         cfg_path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")

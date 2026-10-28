@@ -40,7 +40,7 @@ def main() -> int:
 
     paths = DatasetPaths(Path(a.dataset))
     rows = [r for r in load_manifest(paths) if a.split == "all" or r["split"] == a.split]
-    rows = [r for r in rows if r["denomination"] not in ("50_new", "mixed")]
+    rows = [r for r in rows if r["denomination"] not in ("50_new", "mixed") and r["label_status"] != "unlabeled"]
     if not rows:
         print(f"error: no negative images in split '{a.split}'", file=sys.stderr)
         return 1
