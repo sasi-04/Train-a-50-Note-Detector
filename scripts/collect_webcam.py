@@ -36,7 +36,9 @@ STAGES = [
     ("200", "unknown", f"{R}200", "Hold ONLY the Rs.200 note. Show both sides."),
     ("500", "unknown", f"{R}500", "Hold ONLY the Rs.500 note. Show both sides."),
     ("background", "na", "NO NOTE  (room, people)", "No banknote in view. Faces, hands, a card, a phone, paper, the room, lean left/right."),
-    ("background", "na", "NO NOTE  (blue-green things)", "No banknote. Point the camera at WINDOWS, blue/green/white clothes, walls, bottles, bags: anything pale blue-green."),
+    ("50_new", "unknown", f"{R}50  UPRIGHT (front, then back)", "Hold the NEW Rs.50 UPRIGHT (tall, like a phone): front first, then turn it to the back. Tilt a little, move closer/farther."),
+    ("20", "unknown", f"{R}20  UPRIGHT", "Hold ONLY the Rs.20 note UPRIGHT (tall). Show both sides. (Keeps 'other note' balanced with the upright Rs.50.)"),
+    ("background", "na", "NO NOTE  (blue-green things)","No banknote. Point the camera at WINDOWS, blue/green/white clothes, walls, bottles, bags: anything pale blue-green."),
 ]
 
 
