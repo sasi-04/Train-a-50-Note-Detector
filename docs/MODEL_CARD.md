@@ -4,57 +4,57 @@
 
 | | |
 |---|---|
-| Task | single-class detection of the **new Indian ₹50 note** (front or back) |
+| Task | detect the **new Indian ₹50 note** (front or back) and flag **other banknotes** separately |
 | Architecture | Ultralytics YOLOv8n (3.0 M params), COCO-pretrained start, fine-tuned on CPU |
-| Class | `0: fifty_rupee_note` (shown as `₹50`) |
+| Classes | `0: fifty_rupee_note` (green box `₹50`), `1: other_note` (red box `Other note`; ₹10/20/100/200/500, denomination not named) |
 | Input | 480×480 letterboxed RGB, float32 NCHW, /255 |
-| Output | `(1, 5, 4725)`: `cx, cy, w, h, score`; NMS applied outside the graph (IoU 0.45) |
-| Export | ONNX opset 12, fixed shape, FP32, 12.7 MB, sha256 `ce5a6d1c…f7e99`; metadata in `model.meta.json` |
+| Output | `(1, 6, 4725)`: `cx, cy, w, h, score₀, score₁`; one class-agnostic NMS outside the graph (IoU 0.45) |
+| Export | ONNX opset 12, fixed shape, FP32, 12.7 MB, sha256 `ee2a0455…f7b04b`; metadata in `model.meta.json` |
 | Runtime | OpenCV DNN, CPU (OpenCV 5.0.0 verified; 4.14.0 verified for the loader/tests) |
-| Default threshold | 0.46, chosen on a validation webcam session of the evaluation model |
+| Thresholds | ₹50 **0.62**, other note **0.82**, chosen on a validation webcam session of the evaluation model |
 | Post-filter | box must be banknote-shaped (short side ≥ 5 % of the frame's short side, aspect ≤ 4.5) |
 | Versions | ultralytics 8.4.189, torch 2.14.1 (CPU) |
 | Licence | Ultralytics is AGPL-3.0; review before commercial use |
 
 ## Intended use and non-use
 
-Technical demonstration that a webcam application can find the specified ₹50 note and not label other notes/objects as ₹50.
-**Not** a currency-authentication or counterfeit-detection system; a detection does not show a note is genuine.
+Technical demonstration that a webcam application can find the specified ₹50 note and not label other notes or objects as ₹50.
+**Not** a currency-authentication or counterfeit-detection system; a detection does not show a note is genuine. The red box says
+"some other banknote", not which one.
 
-## Data (738 images, all the developer's own; nothing downloaded or generated)
+## Data (689 images, all the developer's own; nothing downloaded or generated)
 
-* 117 phone/scanner-app images: one physical copy of each of ₹10/20/50/100/200/500, 5 no-note frames.
-* 621 frames from the developer's webcam in three sittings (`scripts/collect_webcam.py`): ₹50 front/back/sideways (105 boxed),
-  ₹10/20/100/200/500, room/people, and blue-green things (a window, clothing).
-* ₹50 boxes: 51 from colour-segmentation proposals that were visually checked, 105 drawn by hand from grid views and verified by
-  overlay. Negatives have empty labels.
-* Splits by session/cluster; webcam session 1 → train, 2 → val, 3 → test.
-* **Narrowness:** one ₹50 note, one person, a few rooms, no controlled lighting/angle metadata; frames within a capture are
-  highly correlated.
+* 117 phone/scanner-app images; 572 webcam frames from three sittings (`scripts/collect_webcam.py`).
+* ₹50 targets 120 boxed images, other-note boxes 430, no-note images 139 (room, people, paper, phone, window, blue-green clothes).
+* ₹50 boxes: 51 colour-proposed + checked, 69 hand-drawn + overlay-verified. Other-note boxes: 162 hand-drawn + overlay-verified,
+  268 helper-model proposals each reviewed on contact sheets (49 unusable frames dropped).
+* Splits by session/cluster; webcam session 1 → train, 2 → val, 3 → test. Webcam frames show the developer and bystanders.
+* **Narrowness:** one ₹50 note and one copy of each other note, one person, a few rooms, no lighting/angle metadata; frames inside
+  a capture are highly correlated.
 
 ## Training
 
-`configs/train.yaml`: 480 px, batch 8, seed 0, deterministic, CPU. Augmentation: hue ±0.01, saturation 0.5, value 0.4, rotation
-±15°, translate 0.1, scale 0.6, shear 2°, perspective 5e-4, mosaic 1.0, no flips/mixup. Two runs: **`rs50_split`** (train
-split only, 40 epochs; used for every held-out number) and **`rs50_final`** (shipped: `rs50_split` fine-tuned 12 epochs on all
-738 images).
+`configs/train.yaml`: 480 px, batch 8, seed 0, deterministic, CPU; augmentation: hue ±0.01, saturation 0.5, value 0.4, rotation
+±15°, translate 0.1, scale 0.6, shear 2°, perspective 5e-4, mosaic 1.0, no flips/mixup. Two runs: **`rs50_split2`** (train split,
+40 epochs; used for every held-out number) and **`rs50_final2`** (shipped: that model fine-tuned 12 epochs on all 689 images).
 
 ## Evaluation (held-out, evaluation model; details in EVALUATION.md)
 
-| split | ₹50 found | non-₹50 images labelled ₹50 |
-|---|---|---|
-| val (webcam session 2 + earlier) | 25–26 / 29 | 0 / 171 |
-| **test** (webcam session 3 + earlier) | **23 / 36 (64 %)**, back 6/6, front 4/8 | **0 / 167** (CI upper ≈ 2 %) |
+| held-out test (193 frames) | result |
+|---|---|
+| new ₹50 (36) | green ₹50 on **33 (92 %)** |
+| other notes (119) | **0 shown as ₹50**; red box on 84 (71 %); nothing on 35 |
+| no note (38) | nothing shown on all 38 |
 
-The shipped model has no held-out score. Live: 0 accepted ₹50 in 200 webcam frames with no note shown.
-Latency on the development CPU (i5-7300U): forward ≈ 83 ms, pipeline ≈ 87 ms median (≈ 11 FPS).
+Non-₹50 images labelled ₹50: **0 of 157** (95 % CI upper bound 2.4 %). The shipped model has no held-out score. Live: 0 ₹50 and 0
+red boxes in 200 webcam frames with no note shown. Latency (i5-7300U, 2 cores): ≈ 76 ms inference / 80 ms per live frame (≈ 12 FPS).
 
-## Known failure modes (observed or likely)
+## Known failure modes
 
-* **Observed:** ₹50 frames that are motion-blurred, strongly backlit, or partly hidden by fingers are often below the threshold
-  (some score 0.3–0.45). The very first model (phone images only) scored a window at 0.69 as ₹50; fixed by webcam negatives.
-* **Likely:** other copies of the ₹50 in poor condition, dim light, glare, a different camera's colour balance, notes held far from
-  the camera (small), another light-coloured note held in a pose not seen in training, several notes in one frame.
+* **Observed:** ~29 % of other-note frames (blurred, half-hidden, in motion) get no red box; 3 of 36 ₹50 frames were missed; the
+  first phone-image-only model scored a window at 0.69 as ₹50 (fixed by webcam negatives).
+* **Likely:** another copy of the ₹50 or of other notes in poor condition, dim light, glare, a different camera's colour balance,
+  notes far from the camera, several notes in one frame, a note-sized coloured object that resembles one of the classes.
 
 ## Hardware
 
