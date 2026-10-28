@@ -18,9 +18,9 @@ from .config import ConfigError, load_config, validate_imgsz, validate_threshold
 from .inference import InferenceError, ModelLoadError, OnnxDetector
 from .logging_utils import get_logger, setup_logging
 from .preprocessing import InvalidImageError
-from .thresholding import TemporalConfirmer, accepted, decide
+from .thresholding import OTHER_NOTE, TemporalConfirmer, accepted, decide
 from .visualization import (
-    currency, draw_banner, draw_detection, draw_header, draw_hud, draw_inspector, rupee_supported,
+    currency, draw_banner, draw_detection, draw_header, draw_hud, draw_inspector, draw_other, rupee_supported,
 )
 
 EXIT_OK, EXIT_USAGE, EXIT_MODEL, EXIT_CAMERA, EXIT_INFERENCE = 0, 2, 3, 4, 5
@@ -95,12 +95,15 @@ def run(argv: list[str] | None = None) -> int:
         log.warning("Rupee sign font not found; label will read 'Rs50'")
 
     try:
-        detector = OnnxDetector(args.model, imgsz=imgsz, score_floor=min(cfg.candidate_floor, threshold),
+        detector = OnnxDetector(args.model, imgsz=imgsz, score_floor=min(cfg.candidate_floor, threshold, cfg.other_threshold),
                                 nms_iou=cfg.nms_iou)
     except ModelLoadError as exc:
         print(f"error: {exc}", file=sys.stderr)
         print("Train and export a model first (see README), or pass --model <path to .onnx>.", file=sys.stderr)
         return EXIT_MODEL
+    # The red 'other note' box needs a 2-class model; a single-class model simply never shows it.
+    other_id = cfg.other_class_id if (cfg.other_class_id is not None and (detector.num_classes or 1) > cfg.other_class_id) else None
+    log.info("Other-note (red box) detection: %s", f"on, threshold {cfg.other_threshold:.2f}" if other_id is not None else "off (single-class model)")
 
     from .webcam import CameraError, FrameSource
 
@@ -121,7 +124,7 @@ def run(argv: list[str] | None = None) -> int:
     totals: deque[float] = deque(maxlen=5000)
     infers: deque[float] = deque(maxlen=5000)
     recent: deque[float] = deque(maxlen=30)
-    processed = detected_frames = read_failures = inference_errors = consecutive_errors = 0
+    processed = detected_frames = read_failures = inference_errors = consecutive_errors = other_frames = 0
     exit_code = EXIT_OK
     window_ready = False
     t_prev = time.perf_counter()
@@ -151,10 +154,13 @@ def run(argv: list[str] | None = None) -> int:
             banner, ok_state, is_error = f"Searching for a {sym}50 note...  show one to the camera", False, False
             shown = None
             decisions = []
+            others: list = []
             try:
                 result = detector.infer(frame)
-                decisions = decide(result.candidates, threshold, cfg.target_class_id, frame.shape[1], frame.shape[0])
+                decisions = decide(result.candidates, threshold, cfg.target_class_id, frame.shape[1], frame.shape[0],
+                                   other_class_id=other_id, other_threshold=cfg.other_threshold)
                 shown = confirmer.update(decisions, threshold)
+                others = [d.candidate for d in decisions if d.reason == OTHER_NOTE]
                 consecutive_errors = 0
             except (InferenceError, InvalidImageError) as exc:
                 inference_errors += 1
@@ -169,6 +175,9 @@ def run(argv: list[str] | None = None) -> int:
             if shown is not None:
                 detected_frames += 1
                 banner, ok_state = f"{sym}50 DETECTED     confidence {shown.score:.2f}", True
+            elif others:
+                other_frames += 1
+                banner, is_error = f"OTHER NOTE  -  not a {sym}50", True
             elif confirmer.enabled and confirmer.state.startswith("confirming") and any(d.accepted for d in decisions):
                 banner = f"Confirming... {confirmer.state}"
 
@@ -178,6 +187,8 @@ def run(argv: list[str] | None = None) -> int:
 
             if show:
                 out = frame
+                for o in others:
+                    draw_other(out, o)
                 if shown is not None:
                     draw_detection(out, shown)
                 if inspector and result is not None:
@@ -229,6 +240,7 @@ def run(argv: list[str] | None = None) -> int:
     summary = {
         "frames_processed": processed,
         "frames_with_accepted_detection": detected_frames,
+        "frames_with_other_note_box": other_frames,
         "camera_read_failures": read_failures,
         "inference_errors": inference_errors,
         "threshold": threshold,

@@ -163,6 +163,15 @@ def draw_detection(frame: np.ndarray, det: Candidate) -> None:
     draw_label(frame, format_label(det.score), x1, y1)
 
 
+def draw_other(frame: np.ndarray, det: Candidate) -> None:
+    """Red box for a recognised banknote that is NOT a Rs.50 (label 'Other note')."""
+    H, W = frame.shape[:2]
+    x1, y1 = int(round(max(0, det.x1))), int(round(max(0, det.y1)))
+    x2, y2 = int(round(min(W - 1, det.x2))), int(round(min(H - 1, det.y2)))
+    cv2.rectangle(frame, (x1, y1), (x2, y2), RED, 3, cv2.LINE_AA)
+    draw_label(frame, f"Other note {det.score:.2f}", x1, y1, bg=RED)
+
+
 def draw_header(frame: np.ndarray, threshold: float, inference_ms: float | None, fps: float, validated: bool) -> None:
     """Translucent dark top bar: red-accent title on the left, live stats on the right."""
     H, W = frame.shape[:2]
