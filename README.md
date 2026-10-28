@@ -9,16 +9,16 @@ YOLOv8n is trained on the developer's own phone photographs, exported to **ONNX*
 python test.py --model model.onnx
 ```
 
-> **Status (read first).** `model.onnx` (YOLOv8n, 480 px, 12.7 MB) is trained on **738 of the developer's own captures**:
-> 117 phone/scanner images plus **621 frames from the developer's webcam** (the same kind of camera the demo uses): 156 boxed
-> images of the new ₹50 (**one physical note**, front/back/sideways), ₹10/₹20/₹100/₹200/₹500 and no-note scenes (room, people,
-> a blue-green window) as negatives. The data are still **narrow** (one person, one copy of each note, a few rooms).
+> **Status (read first).** `model.onnx` (YOLOv8n, 480 px, 12.7 MB, two classes) is trained on **689 of the developer's own
+> captures**: 117 phone/scanner images plus **572 frames from the developer's webcam** (the camera type the demo uses): 120 boxed
+> images of the new ₹50 (**one physical note**, front/back/sideways), 430 boxed images of ₹10/₹20/₹100/₹200/₹500 held in hand
+> (one copy of each), and 139 no-note scenes (room, people, paper, phone, a blue-green window). The data are still **narrow**.
 >
 > Measured honestly on a **held-out webcam session** (details and caveats in [docs/EVALUATION.md](docs/EVALUATION.md)): the
-> evaluation model labelled **0 of 167** non-₹50 frames as ₹50 (₹10/20/100/200/500, faces, paper, phone, window; true rate
-> could still be up to ~2 %) and found **23 of 36 (64 %)** of the ₹50 frames (blurred, backlit and partly hidden ones are
-> missed). The *shipped* model was then fine-tuned on all images, so no held-out number exists for it. A 200-frame live webcam
-> run with no note shown raised 0 false ₹50s. Expect some misses; hold the note steady and well lit.
+> evaluation model showed a green ₹50 on **33 of 36 (92 %)** real ₹50 frames, and **never** called another note, a face, paper
+> or a window a ₹50 (**0 of 157**; true rate could still be up to ~2.4 %). Other notes got a red "Other note" box on 84 of 119
+> frames (71 %), the rest showed nothing. The *shipped* model was then fine-tuned on all images, so no held-out number exists for
+> it. A 200-frame live webcam run with no note shown gave 0 ₹50 and 0 red boxes. Expect some misses; hold the note steady and lit.
 > Full audit: [docs/ACCEPTANCE_REPORT.md](docs/ACCEPTANCE_REPORT.md).
 
 ## What you should see when you run it
@@ -27,15 +27,17 @@ A window titled *Rs50 Vision* opens on your webcam.
 
 * **Target note in view (front or back):** a green box with the label `₹50 0.87`, where the number is the
   detector's **confidence score** (not a calibrated probability), and a green banner *Rs.50 DETECTED*.
-* **No target / another note / an object:** no box, grey banner *Searching for Rs.50 note...*.
+* **Another banknote (₹10/20/100/200/500):** a **red** box `Other note 0.xx` and a red banner *OTHER NOTE - not a ₹50*
+  (it does not say which denomination). A ₹50 is never boxed red.
+* **No note / an object:** no box, grey banner *Searching for a ₹50 note...*.
 * Header bar: the active threshold (marked *unvalidated* if it was not chosen on validation data), inference time and
   FPS measured live. A detection also has to have a plausible banknote shape (not a hairline strip or a speck), a simple rule
   from the note's physical proportions. It does not stop large note-shaped false alarms (see the webcam section below).
 * Keys: `q` or `Esc` quit · `i` decision inspector (shows rejected candidates, their raw score and why they were
   rejected) · `+` / `-` change the threshold live.
 
-Only the **new ₹50** note is the target class. Front and back are both instances of that single class. Older ₹50
-notes and every other denomination are negatives. How well they are actually rejected is **only known after
+Only the **new ₹50** note is the target (class 0); front and back are both instances of it. Every other denomination is
+class 1 "other note" (red box), never ₹50. Older ₹50 notes were not in the data. How well they are actually rejected is **only known after
 you run the evaluation below on your own held-out photos** and is reported in `reports/` and
 [docs/EVALUATION.md](docs/EVALUATION.md); no denomination is guaranteed to be rejected.
 
@@ -82,11 +84,12 @@ python test.py --help
 Exit codes: 0 ok · 2 bad arguments · 3 model missing/unloadable · 4 camera problem · 5 repeated inference failure.
 A failed inference is shown as an error banner and never as "no detection" or a ₹50.
 
-**Operating threshold.** `configs/inference.yaml` holds `0.46`, selected by `scripts/evaluate.py --select-threshold` on the
-**validation** webcam session of the evaluation model (0 false ₹50 on 171 negative images, recall 86–90 %; the false-alarm-free
-range starts at 0.41, so 0.46 sits inside it with margin). The shipped model reuses that value. A higher threshold reduces false
-positives but misses more genuine notes: `--threshold 0.40` is more sensitive, `--threshold 0.60` stricter. Trade-off curve:
-`reports/threshold_analysis_val.png`, `reports/threshold_sweep_val.csv`. Press `+`/`-` while running to adjust live.
+**Operating thresholds.** `configs/inference.yaml` holds **₹50 = 0.62** and **other note = 0.82** (`other_threshold`), selected by
+`scripts/evaluate.py --select-threshold` on the **validation** webcam session of the evaluation model (0 false ₹50 on 159
+negative images, ₹50 recall 93 %; other-note recall 88 %); the middle of each safe range is used, not its edge. The shipped model
+reuses them. A higher ₹50 threshold reduces false positives but misses more genuine notes: `--threshold 0.50` is more sensitive,
+`--threshold 0.75` stricter. Curves: `reports/threshold_analysis_val.png`, `reports/threshold_sweep_val.csv`,
+`reports/threshold_sweep_other_val.csv`. Press `+`/`-` while running to adjust the ₹50 threshold live.
 
 ## Complete workflow: photos → model → evaluation
 
@@ -166,7 +169,7 @@ Each label line: `0 cx cy w h`, normalised to [0,1]; class `0 = fifty_rupee_note
 ## Tests
 
 ```bash
-pytest -q          # 115 tests, ~30 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
+pytest -q          # 125 tests, ~30 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
 ```
 
 Tests that use fixture or random-weight ONNX models verify *mechanics* (loading, decoding, coordinate mapping,
