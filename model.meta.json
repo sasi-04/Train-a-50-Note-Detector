@@ -15,12 +15,12 @@
   "display_label": "\u20b950",
   "num_classes": 2,
   "preprocess": "letterbox pad=114, RGB, /255, NCHW float32",
-  "source_checkpoint": "runs\\rs50_final2\\weights\\best.pt",
-  "source_checkpoint_sha256": "a3ef7487ebb99a843d95b32b51cb5711ad7cea8e9252f01e875b39b0bafba84e",
-  "onnx_sha256": "ee2a0455e060c746684eb97b069d88ddbe23ff83d4bb1dfb4e53dd611bb7f04b",
+  "source_checkpoint": "runs\\rs50_final3\\weights\\best.pt",
+  "source_checkpoint_sha256": "1aec3983415cacb5cfebdda33d93bc4c6eaab95a976a4c277951b7725d75188e",
+  "onnx_sha256": "93a630e81cfb902ad824590f03ce1888424260a36f562746728a1c4e8e57c5e5",
   "onnx_size_bytes": 12700634,
   "ultralytics": "8.4.189",
   "torch": "2.14.1+cpu",
   "onnx": "1.23.2",
-  "exported_utc": "2026-10-28T13:40:58+00:00"
+  "exported_utc": "2026-10-28T18:18:51+00:00"
 }
