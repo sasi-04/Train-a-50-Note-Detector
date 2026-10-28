@@ -1,8 +1,8 @@
 # Dataset quality audit
 
 Dataset root: `dataset`  
-Manifest hash: `c61ece36d59f192b`  
-Status: **READY FOR TRAINING** (0 errors, 5 warnings)
+Manifest hash: `d9ba7f613ddb79ac`  
+Status: **READY FOR TRAINING** (0 errors, 6 warnings)
 
 ## Totals
 
@@ -75,8 +75,8 @@ Status: **READY FOR TRAINING** (0 errors, 5 warnings)
 
 | value | count |
 |---|---|
-| 0 | 618 |
-| 1 | 120 |
+| 0 | 456 |
+| 1 | 282 |
 
 ## Integrity
 
@@ -87,9 +87,10 @@ Status: **READY FOR TRAINING** (0 errors, 5 warnings)
 ## Errors (0)
 
 
-## Warnings (5)
+## Warnings (6)
 
 - unsupported file in images/: .gitkeep
+- 317 other-denomination images have no 'other note' box yet (label_status unlabeled): they are EXCLUDED from training until boxed or removed
 - 156 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)
 - only 28 front-side target images (recommended >= 100)
 - only 17 back-side target images (recommended >= 100)

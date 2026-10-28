@@ -2,6 +2,7 @@
   "errors": [],
   "warnings": [
     "unsupported file in images/: .gitkeep",
+    "317 other-denomination images have no 'other note' box yet (label_status unlabeled): they are EXCLUDED from training until boxed or removed",
     "156 near-duplicate pairs within the same split/session (expected for burst captures; consider thinning them)",
     "only 28 front-side target images (recommended >= 100)",
     "only 17 back-side target images (recommended >= 100)",
@@ -10,7 +11,7 @@
   "stats": {
     "total_images": 738,
     "images_on_disk": 738,
-    "manifest_hash": "c61ece36d59f192b",
+    "manifest_hash": "d9ba7f613ddb79ac",
     "by_denomination": {
       "50_new": 120,
       "background": 139,
@@ -82,10 +83,11 @@
       "<= 1600": 738
     },
     "boxes_per_image": {
-      "0": 618,
-      "1": 120
+      "0": 456,
+      "1": 282
     },
     "label_files_missing": 0,
+    "other_note_images_not_yet_boxed": 317,
     "blurry_images_laplacian_var_lt_20": 5,
     "near_duplicate_pairs_same_split": 156,
     "cross_split_near_duplicates": 0
