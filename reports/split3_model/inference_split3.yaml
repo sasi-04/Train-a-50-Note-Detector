@@ -1,0 +1,12 @@
+imgsz: 480
+threshold: 0.27
+threshold_validated: true
+threshold_source: val sweep, 188 images, model 5b74b15af7d2, 2026-10-28
+nms_iou: 0.45
+candidate_floor: 0.05
+target_class_id: 0
+confirm_frames: 1
+window_frames: 5
+release_threshold_ratio: 0.8
+other_class_id: 1
+other_threshold: 0.37
