@@ -31,6 +31,9 @@ class InferenceConfig:
     # threshold so the inspector can show *why* something was rejected.
     candidate_floor: float = 0.05
     target_class_id: int = 0
+    # Class 1 = "other banknote": drawn as a RED box (never as a Rs.50). None disables it (single-class models).
+    other_class_id: int | None = None
+    other_threshold: float = 0.5
     confirm_frames: int = 1  # 1 == temporal confirmation disabled
     window_frames: int = 5
     release_threshold_ratio: float = 0.8  # hysteresis: stay "locked" above ratio*threshold
@@ -76,6 +79,7 @@ def load_config(path: Path | str | None = None) -> InferenceConfig:
         else:
             cfg.extra[key] = val
     cfg.threshold = validate_threshold(cfg.threshold)
+    cfg.other_threshold = validate_threshold(cfg.other_threshold, "other_threshold")
     cfg.imgsz = validate_imgsz(cfg.imgsz)
     if cfg.threshold_validated and cfg.threshold_source.startswith("built-in"):
         cfg.threshold_source = f"{p.name}"

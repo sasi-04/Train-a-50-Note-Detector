@@ -13,6 +13,7 @@ BELOW_THRESHOLD = "below_threshold"
 WRONG_CLASS = "wrong_class"
 INVALID_BOX = "invalid_box"
 IMPLAUSIBLE_SHAPE = "implausible_shape"
+OTHER_NOTE = "other_note"  # a confident 'other note' detection: shown in red, never counted as a Rs.50
 
 # Geometry of a banknote seen by a camera. A Rs.50 is 135x66 mm (aspect 2.05); perspective, rotation and
 # partial occlusion stretch that, but never to a hairline strip or a speck. These limits are fixed from the
@@ -45,11 +46,23 @@ def decide(
     frame_h: int | None = None,
     min_box_frac: float = MIN_BOX_FRAC,
     max_aspect: float = MAX_ASPECT,
+    other_class_id: int | None = None,
+    other_threshold: float | None = None,
 ) -> list[Decision]:
-    """Label every candidate accepted/rejected with a machine-readable reason."""
+    """Label every candidate accepted/rejected with a machine-readable reason.
+
+    Only target-class candidates can be ``accepted``. With ``other_class_id`` set, a plausible-shaped candidate of
+    that class scoring >= ``other_threshold`` gets reason ``other_note`` (accepted=False): the app draws it red.
+    """
     out: list[Decision] = []
     for c in candidates:
-        if c.class_id != target_class_id:
+        if other_class_id is not None and c.class_id == other_class_id:
+            ok_shape = not (frame_w and frame_h) or plausible_shape(c.box, frame_w, frame_h, min_box_frac, max_aspect)
+            if ok_shape and other_threshold is not None and c.score >= other_threshold:
+                out.append(Decision(c, False, OTHER_NOTE))
+            else:
+                out.append(Decision(c, False, WRONG_CLASS))
+        elif c.class_id != target_class_id:
             out.append(Decision(c, False, WRONG_CLASS))
         elif c.width <= 0 or c.height <= 0 or (frame_w is not None and c.x1 >= frame_w) or (
             frame_h is not None and c.y1 >= frame_h
