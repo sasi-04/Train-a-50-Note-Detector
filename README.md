@@ -1,221 +1,188 @@
-# ₹50 Vision — Indian ₹50 banknote detection
+# ₹50 Vision: live detector for the new Indian ₹50 note
 
-Real-time webcam detector for the **new light blue-green Indian ₹50 note** (Mahatma Gandhi portrait on the
-front, Hampi stone chariot on the back). Built for the ZED Digital assignment "Train a ₹50 Note Detector".
-YOLOv8n is trained on the developer's own phone photographs, exported to **ONNX**, and run live through
-**OpenCV's DNN module** (no PyTorch needed at run time).
+A webcam program that draws a green box labelled **`₹50`** and a confidence score when the **new light blue-green ₹50 note**
+(Gandhi portrait on the front, Hampi stone chariot on the back) is held up to the camera. Other banknotes get a separate
+**red** box ("Other note"). It is the submission for the ZED Digital assignment *Train a ₹50 Note Detector*.
 
 ```bash
 python test.py --model model.onnx
 ```
 
-> **Status (read first).** `model.onnx` (YOLOv8n, 480 px, 12.7 MB, two classes) is trained on **801 of the developer's own
-> captures**: 117 phone/scanner images plus **684 frames from the developer's webcam** (the camera type the demo uses): 198 boxed
-> images of the new ₹50 (**one physical note**, front/back/sideways/**upright**), 464 boxed images of ₹10/₹20/₹100/₹200/₹500 held
-> in hand (one copy of each), and 139 no-note scenes (room, people, paper, phone, a blue-green window). The data are still
-> **narrow**.
->
-> Measured honestly on a **held-out test** (details and caveats in [docs/EVALUATION.md](docs/EVALUATION.md)): the evaluation
-> model showed a green ₹50 on **67 of 68** real ₹50 frames, including **32 of 32 upright** frames from a session recorded after
-> training (the previous model found 4 of 32). **The price: 8 of 191 non-₹50 images (4.2 %; CI up to 8 %) were also called ₹50**,
-> six full-frame ₹200 scan crops and two webcam frames of a ceiling (the previous model: 0 of 191). Other notes got a red "Other
-> note" box on 138 of 153. The *shipped* model was then fine-tuned on all images, so no held-out number exists for it. A
-> 200-frame live webcam run with no note shown gave 0 ₹50 and 0 red boxes. Expect some misses and some false alarms; hold the note
-> steady and lit.
-> Full audit: [docs/ACCEPTANCE_REPORT.md](docs/ACCEPTANCE_REPORT.md).
+## For reviewers: the short version
 
-## What you should see when you run it
+| Question | Answer |
+|---|---|
+| Does it run with the required command? | **Yes.** `python test.py --model model.onnx` opens the webcam with OpenCV and draws the box, the label `₹50` and the score. |
+| What model is it? | YOLOv8n, trained by the developer, exported to **ONNX** (`model.onnx`, 12.7 MB). At run time only OpenCV's DNN module is used (no PyTorch, no GPU, no internet). |
+| Whose images? | Only the developer's own captures of their own notes: 801 images, **nothing downloaded, printed, photocopied or generated**. |
+| Does it find the ₹50? | On a held-out test the evaluation model showed ₹50 on **67 of 68** real ₹50 frames, front and back, held flat or upright. |
+| Does it avoid false ₹50s? | **Mostly, not perfectly.** 8 of 191 non-₹50 test images (4.2 %) were also labelled ₹50: six close-up ₹200 scans and two ceiling frames. Held-up ₹10/₹20/₹100/₹500 notes were never called ₹50 in the test. See [the numbers](#measured-results). |
+| Is it finished? | Yes: data, training code, ONNX model, `test.py`, evaluation, 127 passing tests, documentation. The limits are listed honestly below. |
 
-A window titled *Rs50 Vision* opens on your webcam.
+## Run it (3 steps)
 
-* **Target note in view (front or back):** a green box with the label `₹50 0.87`, where the number is the
-  detector's **confidence score** (not a calibrated probability), and a green banner *Rs.50 DETECTED*.
-* **Another banknote (₹10/20/100/200/500):** a **red** box `Other note 0.xx` and a red banner *OTHER NOTE - not a ₹50*
-  (it does not say which denomination). A ₹50 is never boxed red.
-* **No note / an object:** no box, grey banner *Searching for a ₹50 note...*.
-* Header bar: the active threshold (marked *unvalidated* if it was not chosen on validation data), inference time and
-  FPS measured live. A detection also has to have a plausible banknote shape (not a hairline strip or a speck), a simple rule
-  from the note's physical proportions. It does not stop large note-shaped false alarms (see the webcam section below).
-* Keys: `q` or `Esc` quit · `i` decision inspector (shows rejected candidates, their raw score and why they were
-  rejected) · `+` / `-` change the threshold live.
-
-Only the **new ₹50** note is the target (class 0); front and back are both instances of it. Every other denomination is
-class 1 "other note" (red box), never ₹50. Older ₹50 notes were not in the data. How well they are actually rejected is **only known after
-you run the evaluation below on your own held-out photos** and is reported in `reports/` and
-[docs/EVALUATION.md](docs/EVALUATION.md); no denomination is guaranteed to be rejected.
-
-## Requirements
-
-* Python 3.10+ (developed and tested on 3.14.4, Windows 10). Linux/macOS should work (code is portable) but only
-  Windows has been tested.
-* A webcam (or use `--source image_or_video` to run without one).
-* CPU only. No CUDA, no server, no internet at run time.
-
-## Installation (Windows PowerShell)
+Needs Python 3.10+ and a webcam. Tested on Windows 10 with Python 3.14 and OpenCV 5.0; nothing else is needed at run time.
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt            # enough to run test.py
-pip install -r requirements-train.txt      # only for training / export / evaluation (installs PyTorch + Ultralytics)
-pip install -r requirements-dev.txt        # only for running the test suite
+pip install -r requirements.txt
+python test.py --model model.onnx
 ```
 
-Linux/macOS: `python3 -m venv .venv && source .venv/bin/activate`, then the same `pip` lines.
+Linux/macOS: `python3 -m venv .venv && source .venv/bin/activate`, then the same `pip` and `python` lines (code is portable, but only Windows was tested).
 
-## Running the detector
+Press **`q`** or **Esc** to quit. Press **`i`** for the decision inspector (shows why a candidate was rejected) and **`+` / `-`** to change the threshold live.
+
+## What you will see
+
+| In front of the camera | On screen |
+|---|---|
+| The new ₹50 (front or back) | Green box `₹50 0.87` (the number is the model's confidence score, not a calibrated probability) and a green banner *Rs.50 DETECTED* |
+| Another note (₹10, ₹20, ₹100, ₹200, ₹500) | Red box `Other note 0.xx` and a red banner *OTHER NOTE - not a ₹50*. It does not say which denomination. |
+| No note, or any other object | No box, grey banner *Searching for a ₹50 note...* |
+
+The top bar shows the threshold in use, the inference time and live FPS. Hold the note fairly steady, well lit, filling a good part of the frame.
+
+## Assignment checklist
+
+| Requirement from the PDF | Status | Where |
+|---|---|---|
+| Only the new ₹50 note (front: Gandhi, back: Hampi chariot) | Met | class 0 `fifty_rupee_note`; both sides are examples of it; older ₹50 not used |
+| Own photos of the ₹50, front and back, varied conditions | Met, one physical note | 198 boxed ₹50 images: front, back, sideways, upright; different backgrounds and sittings. [dataset/](dataset/), [audit](reports/dataset_audit.md) |
+| Photos of ₹10, ₹20, ₹100, ₹200, ₹500 as "not ₹50" | Met | 85–88 images of each (one physical copy of each note), class 1 `other_note` |
+| Do not download note images | Met | none used; an offered RBI PDF folder was declined and is git-ignored |
+| Do not print, photocopy or create fake notes | Met | only real notes were photographed; no generated images anywhere in `dataset/` |
+| Any model (YOLO recommended) | Met | YOLOv8n |
+| Training images and label files in `dataset/` | Met | `dataset/images/pool`, `dataset/labels/pool` (YOLO format), `dataset/metadata/image_manifest.csv` |
+| Source code: training code and test script | Met | [scripts/train.py](scripts/train.py), [configs/train.yaml](configs/train.yaml), [test.py](test.py), [src/detector/](src/detector/) |
+| Trained model in ONNX that loads in OpenCV | Met | [model.onnx](model.onnx) loaded with `cv2.dnn`; [reports/onnx_validation.md](reports/onnx_validation.md) shows it matches the PyTorch model |
+| `test.py` opens the webcam with OpenCV, draws a box labelled "₹50" with the confidence | Met | 200-frame run on a real webcam, rendered frames, tests |
+| README: how to install and run | Met | this file |
+| Run command `python test.py --model model.onnx` | Met | works as written |
+| One public GitHub repository | Met | https://github.com/sasi-04/Train-a-50-Note-Detector |
+| "Detects the ₹50 reliably and does not show ₹50 for anything else" | **Partly**, measured | see below. Reliable on the developer's data; not perfect, and not yet proven on a different camera and different notes |
+
+One thing to judge: the assignment says "photos with your phone". 117 of the images are phone/scanner-app captures; the other 684 are
+frames from the **laptop webcam** (the same kind of camera the demo uses), because the phone-only first model scored a real note
+poorly and a window as a ₹50 on a webcam. They are the developer's own captures of their own notes and are marked `source=webcam` in the manifest.
+
+## Measured results
+
+Everything here comes from files in [reports/](reports/); methods and caveats are in [docs/EVALUATION.md](docs/EVALUATION.md).
+The test frames come from recording sessions that were **not used for training or for choosing thresholds**.
+
+| Held-out test (259 images) | Result |
+|---|---|
+| New ₹50 (68 images) | green ₹50 shown on **67** (99 %); the upright (portrait) ones **32 of 32**; front 8 of 8; back 3 of 6 (too few to be sure) |
+| ₹10 / ₹20 / ₹100 / ₹500 held in hand | never labelled ₹50; a red "Other note" box on most of them |
+| ₹200 (28 images) | **6 labelled ₹50 by mistake** (full-frame close-up scans) |
+| No note (38 frames) | nothing shown on 36; **2 labelled ₹50** (ceiling) |
+| All non-₹50 images | **8 of 191 (4.2 %) labelled ₹50**; statistically the true rate could be up to about 8 % |
+| Red box on other notes | 138 of 153 |
+| Speed | about 64 ms per frame on a 2-core laptop CPU (about 15 FPS) |
+| Live check, no note shown | 200 webcam frames: 0 ₹50, 0 red boxes |
+
+Why the shipped model has no held-out score: after the evaluation, the model was fine-tuned once more on **all** 801 images
+(so the weakest cases are learned too). A model cannot be scored on data it trained on, so the numbers above are for the
+evaluation model that has the same design; the shipped file is verified only by the ONNX check, the tests and the live run.
+
+## Limitations in plain words
+
+* **One physical copy of each note, one person, a few rooms.** A different ₹50 note, a different webcam or different light may behave differently.
+* **Some false ₹50 labels remain** (4.2 % of non-₹50 images in the test), mostly large flat note-like images and one ceiling area. No score threshold can remove them, because they score high.
+* **Back side and upright are covered by one recording session each**; the back side had only 6 test frames.
+* **Not an authenticity checker.** It recognises how the note looks; it cannot tell a genuine note from a good fake. The score is not a probability.
+* **Privacy:** the webcam frames show the developer and people in the background (other people, lanyards). Faces are not labelled or used for anything but the background; if this is a concern, remove those frames and retrain.
+* Full list: [docs/LIMITATIONS.md](docs/LIMITATIONS.md).
+
+## Command options
 
 ```bash
-python test.py --model model.onnx                 # mandatory form
-python test.py --model model.onnx --threshold 0.75 --camera 1
-python test.py --model model.onnx --source clip.mp4 --inspector
+python test.py --model model.onnx --threshold 0.5 --camera 1     # stricter score, other webcam
+python test.py --model model.onnx --source clip.mp4 --inspector  # video or image instead of a webcam
 python test.py --model model.onnx --no-display --max-frames 100 --summary-json run.json   # headless timing run
 python test.py --help
 ```
 
 | flag | meaning |
 |---|---|
-| `--model` | ONNX file (default `model.onnx`) |
-| `--threshold` | score threshold in (0,1); default from `configs/inference.yaml` |
-| `--camera` / `--source` | webcam index (default 0) / image or video file instead of a webcam |
-| `--imgsz` | model input size; normally read from `model.meta.json` next to the model |
+| `--model` | ONNX file (default `model.onnx`); keep `model.meta.json` next to it (holds the input size) |
+| `--threshold` | ₹50 score threshold in (0,1); default **0.27** from `configs/inference.yaml` (other-note threshold 0.37) |
+| `--camera` / `--source` | webcam index (default 0) / image or video file |
+| `--imgsz` | model input size; normally read from `model.meta.json` (480) |
 | `--confirm-frames N` | require N hits in the last 5 frames before showing a box (default 1 = off) |
-| `--inspector` | start with the decision inspector on |
-| `--no-display`, `--max-frames`, `--summary-json`, `--log-file`, `--verbose` | headless/diagnostics |
+| `--inspector`, `--no-display`, `--max-frames`, `--summary-json`, `--log-file`, `--verbose` | diagnostics |
 
 Exit codes: 0 ok · 2 bad arguments · 3 model missing/unloadable · 4 camera problem · 5 repeated inference failure.
-A failed inference is shown as an error banner and never as "no detection" or a ₹50.
+An inference failure is shown as an error banner, never as "no detection" or a ₹50.
 
-**Operating thresholds.** `configs/inference.yaml` holds **₹50 = 0.27** and **other note = 0.37** (`other_threshold`), selected by
-`scripts/evaluate.py --select-threshold` on the **validation** split of the evaluation model (0 false ₹50 on 159 negative
-images, ₹50 recall 100 % (29/29); other-note recall 97 %); the middle of each safe range is used, not its edge. The shipped model
-reuses them. On the held-out test the ₹50 score did not matter between 0.13 and 0.43 (the 8 false alarms score 0.65–0.85; see
-docs/EVALUATION.md), so `--threshold` mostly changes how many weak candidates are shown. Use `--threshold 0.5` for fewer weak boxes. Curves: `reports/threshold_analysis_val.png`, `reports/threshold_sweep_val.csv`,
-`reports/threshold_sweep_other_val.csv`. Press `+`/`-` while running to adjust the ₹50 threshold live.
-
-## Complete workflow: photos → model → evaluation
-
-Full collection protocol: [docs/DATASET_COLLECTION.md](docs/DATASET_COLLECTION.md).
-
-**Hard rules (from the assignment):** photograph genuine notes yourself with your phone; photograph the new ₹50
-on **both sides** and ₹10, ₹20, ₹100, ₹200, ₹500 as negatives; never download banknote images, never use generated
-images, never print or photocopy notes. Everything below only ever reads your local dataset.
-
-The current dataset was imported from four scanner-app PDFs with
-`scripts/import_scan_pdf.py` and `scripts/import_handheld.py` (page→label/split maps in `dataset/metadata/*.yaml`, which also
-explain every split decision). To add more photos use the generic flow below, then re-run steps 3–6.
-
-```bash
-# 1. import each batch of phone photos (EXIF/GPS is stripped on import). One call per denomination/side/condition.
-python scripts/capture_dataset.py ingest D:\photos\s01_front --denomination 50_new --side front --lighting bright --background plain --session s01
-python scripts/capture_dataset.py ingest D:\photos\s01_back  --denomination 50_new --side back  --session s01
-python scripts/capture_dataset.py ingest D:\photos\s01_n20   --denomination 20 --side front --session s01
-#    ...repeat for 10, 20, 100, 200, 500 (and optionally 50_old, object, background), for 6+ different sessions
-
-# 2. draw the box around every target note yourself (negatives get empty label files automatically)
-python scripts/annotate.py --only-unlabeled
-
-# 3. split whole sessions into train/val/test (no leakage) and audit the dataset
-python scripts/split_dataset.py --seed 42
-python scripts/validate_dataset.py              # -> reports/dataset_audit.md ; must say READY before training
-
-# 4. train (CPU, YOLOv8n, COCO-pretrained start; configs/train.yaml)
-python scripts/train.py
-
-# 5. export to ONNX and validate it through the exact OpenCV path
-python scripts/export_onnx.py --weights runs/rs50/weights/best.pt --out model.onnx
-python scripts/validate_onnx.py --model model.onnx --weights runs/rs50/weights/best.pt --images dataset/images/pool
-
-# 6. choose the threshold on VAL, stress-test negatives, then the one-time held-out TEST report
-python scripts/evaluate.py --model model.onnx --split val --select-threshold --write-config
-python scripts/stress_test.py --model model.onnx --split val
-python scripts/evaluate.py --model model.onnx --split test
-
-# 7. demo
-python test.py --model model.onnx
-```
-
-`train.py` refuses to start until the audit passes (both sides of the target, every required negative
-denomination, valid labels, leak-free session splits). Pretrained weights (`yolov8n.pt`, trained on the COCO
-dataset, no banknotes) are downloaded automatically by Ultralytics on first use; this is the only download.
-
-### Making it work on *your* webcam (recommended)
-
-A webcam looks different from a phone (softer, colour cast, other lighting): the first model, trained on phone/scanner images
-only, scored a real note at 0.33 and a window at 0.69. Webcam frames fixed that, so they are included (sessions 1–3). To add
-more, record guided sessions (about 4 minutes each):
-
-```bash
-python scripts/collect_webcam.py --session webcam_s01 --split train     # prompts: ₹50 front, back, sideways, ₹10 ... ₹500, no note
-python scripts/collect_webcam.py --session webcam_s02 --split val       # a second sitting, used to choose the threshold
-python scripts/collect_webcam.py --session webcam_s03 --split test      # a third, kept for an honest final check
-python scripts/propose_boxes.py                                         # boxes for the ₹50 frames; open reports/box_review/sheet_*.jpg
-python scripts/propose_boxes.py --accept --exclude 4,17 --drop-rejected # list the tiles with a wrong box
-python scripts/validate_dataset.py                                      # then train / export / evaluate as above
-```
-
-Hold **only** the note named on screen: frames of other notes and of "no note" are saved as negatives.
-
-### Dataset layout and annotation format
-
-```
-dataset/
-  images/pool/*.jpg          all images (JPEG, long side <= 1600 px)
-  labels/pool/*.txt          YOLO labels, same basename; EMPTY file = genuine negative
-  metadata/image_manifest.csv  denomination, side, lighting, angle, background, source, session, split, label_status, sha256
-```
-
-Each label line: `0 cx cy w h`, normalised to [0,1]; class `0 = fifty_rupee_note`. The split lives in the manifest
-(whole capture *sessions* go to train/val/test), and `train.py` generates the Ultralytics file lists from it.
-
-## Tests
-
-```bash
-pytest -q          # 127 tests, ~30 s; see docs/TEST_PLAN.md (the real-model test is skipped if model.onnx is absent)
-```
-
-Tests that use fixture or random-weight ONNX models verify *mechanics* (loading, decoding, coordinate mapping,
-export parity, error handling), not detection quality. The one test that exercises the real `model.onnx` is
-skipped until that file exists.
-
-## Project structure
-
-```
-test.py                     required entry point (thin; logic in src/detector/app.py)
-src/detector/               preprocessing, postprocessing, inference (cv2.dnn), thresholding, webcam, visualization, dataset, metrics
-scripts/                    capture_dataset, annotate, split_dataset, validate_dataset, train, export_onnx, validate_onnx, evaluate, stress_test
-configs/                    train.yaml, inference.yaml
-tests/                      pytest suite
-docs/                       audit, architecture, plan, test plan, collection guide, evaluation, model card, limitations, acceptance report
-reports/                    generated (audit, ONNX validation, evaluation, threshold sweeps)
-```
+The two thresholds were chosen on the validation sessions only (rule: no false ₹50 on any validation negative, then the middle
+of the safe range). Curves: `reports/threshold_analysis_val.png`.
 
 ## Troubleshooting
 
 | symptom | fix |
 |---|---|
-| `Model file not found` | train + export first, or pass `--model path\to\model.onnx` |
-| `Could not open camera 0` | close Zoom/Teams/browser tabs using the webcam, check Windows *Privacy → Camera*, try `--camera 1`, or use `--source` |
-| `Model loaded but a test forward pass failed ... --imgsz` | pass the size used at export, e.g. `--imgsz 480` (normally auto-read from `model.meta.json`, so keep that file next to the model) |
-| label shows `Rs50` instead of `₹50` | no font with the ₹ glyph found; set env var `RUPEE_FONT` to a `.ttf` that has it (Segoe UI on Windows, DejaVu Sans on Linux) |
-| `cv2.imshow` error | an OpenCV *headless* build is installed: `pip uninstall opencv-python-headless` then `pip install opencv-python`, or use `--no-display` |
-| low FPS | CPU only; use a smaller `--imgsz` model (see Latency in the model card), close other apps |
+| `Model file not found` | run from the repository folder, or pass `--model path\to\model.onnx` |
+| `Could not open camera 0` | close Zoom/Teams/browser tabs using the webcam, check Windows *Privacy → Camera*, try `--camera 1` |
+| `... test forward pass failed ... --imgsz` | keep `model.meta.json` beside the model, or pass `--imgsz 480` |
+| label shows `Rs50` instead of `₹50` | no font with the ₹ glyph found; set env var `RUPEE_FONT` to a `.ttf` that has it (Segoe UI on Windows) |
+| `cv2.imshow` error | a headless OpenCV is installed: `pip uninstall opencv-python-headless`, `pip install opencv-python`, or use `--no-display` |
+| low FPS | CPU only; close other apps |
 
-## Limitations
+## For developers: retrain and re-evaluate
 
-See [docs/LIMITATIONS.md](docs/LIMITATIONS.md). In short: this is a technical demonstration, **not** a currency
-authentication or counterfeit-detection system; a detection does not mean a note is genuine; the confidence score is
-not a calibrated probability; reliability depends entirely on how varied your photographs are; performance has only
-been measured on the development laptop (2-core i5-7300U).
+Install the extra packages: `pip install -r requirements-train.txt` (PyTorch + Ultralytics) and `pip install -r requirements-dev.txt` (tests).
+
+```bash
+pytest -q                                   # 127 tests, ~30 s (see docs/TEST_PLAN.md)
+python scripts/validate_dataset.py          # audit -> reports/dataset_audit.md ; must say READY
+python scripts/train.py                     # YOLOv8n, CPU, configs/train.yaml (refuses to start if the audit fails)
+python scripts/export_onnx.py --weights runs/<name>/weights/best.pt --out model.onnx --imgsz 480 --force
+python scripts/validate_onnx.py --model model.onnx --weights runs/<name>/weights/best.pt --images dataset/images/pool --imgsz 480
+python scripts/evaluate.py --model model.onnx --split val --select-threshold --write-config   # thresholds from VAL only
+python scripts/stress_test.py --model model.onnx --split val
+python scripts/evaluate.py --model model.onnx --split test                                    # held-out report
+```
+
+Collecting more data (rules: your own genuine notes only; never download, generate, print or photocopy notes):
+
+```bash
+python scripts/collect_webcam.py --session webcam_s06 --split train   # guided ~4 min webcam session, 12 prompts incl. upright ₹50/₹20
+python scripts/capture_dataset.py ingest D:\photos\s01_front --denomination 50_new --side front --session s01   # phone photos
+python scripts/annotate.py --only-unlabeled                           # draw the boxes yourself
+python scripts/split_dataset.py --seed 42                             # whole sessions go to train/val/test
+```
+
+Dataset format: `dataset/images/pool/*.jpg`, `dataset/labels/pool/*.txt` (YOLO: `class cx cy w h`, normalised; `0` = ₹50, `1` = other note;
+an empty file = background image), and `dataset/metadata/image_manifest.csv` with denomination, side, source, session, split and SHA-256.
+Training options include `--rot90` (adds 90°-rotated copies of training images so the upright note is learned) and `--final-fit`.
+Pretrained COCO weights (`yolov8n.pt`, no banknotes) are downloaded automatically by Ultralytics on first training; this is the only download.
+
+## Project structure
+
+```
+test.py                  required entry point (thin; logic in src/detector/app.py)
+model.onnx, model.meta.json   the trained model and its input size / hashes
+src/detector/            preprocessing, postprocessing, inference (cv2.dnn), thresholding, webcam, visualisation, metrics
+scripts/                 data collection, annotation, split, audit, train, export, ONNX validation, evaluation, stress test
+configs/                 train.yaml, inference.yaml
+dataset/                 801 images + YOLO labels + manifest
+tests/                   pytest suite (127 tests)
+reports/                 audit, ONNX validation, evaluation, threshold sweeps
+docs/                    requirements audit, architecture, test plan, evaluation, model card, limitations, acceptance report
+```
+
+Further reading: [ACCEPTANCE_REPORT](docs/ACCEPTANCE_REPORT.md) (full checklist with evidence), [EVALUATION](docs/EVALUATION.md),
+[MODEL_CARD](docs/MODEL_CARD.md), [LIMITATIONS](docs/LIMITATIONS.md), [REQUIREMENTS_AUDIT](docs/REQUIREMENTS_AUDIT.md).
 
 ## Licence note
 
-Training and export use [Ultralytics](https://github.com/ultralytics/ultralytics) (AGPL-3.0). Check its licence terms
-before any commercial use. Run-time inference (`test.py`) uses only OpenCV, NumPy, PyYAML and Pillow.
+Training and export use [Ultralytics](https://github.com/ultralytics/ultralytics) (AGPL-3.0); check its terms before commercial use.
+Run-time inference (`test.py`) uses only OpenCV, NumPy, PyYAML and Pillow.
 
 ## Reproducibility
 
-Each training run writes `runs/<name>/run_info.json` (config, seed, library versions, dataset manifest hash,
-checkpoint SHA-256); `export_onnx.py` writes `model.meta.json` (input size, hashes, versions); each evaluation
-report records the model hash, dataset manifest hash, threshold, hardware and timestamp.
+Each training run writes `runs/<name>/run_info.json` (config, seed, library versions, dataset hash, checkpoint hash);
+`export_onnx.py` writes `model.meta.json`; each evaluation report records the model hash, dataset hash, thresholds, hardware and time.
