@@ -11,7 +11,6 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG_PATH = REPO_ROOT / "configs" / "inference.yaml"
 
-# Used only if configs/inference.yaml is absent. NOT validation-derived.
 FALLBACK_THRESHOLD = 0.5
 
 
@@ -23,20 +22,16 @@ class ConfigError(ValueError):
 class InferenceConfig:
     imgsz: int = 640
     threshold: float = FALLBACK_THRESHOLD
-    # True only once scripts/evaluate.py has selected the threshold on validation data.
     threshold_validated: bool = False
     threshold_source: str = "built-in fallback (not validated)"
     nms_iou: float = 0.45
-    # Raw-score floor applied before NMS. Kept far below any sensible operating
-    # threshold so the inspector can show *why* something was rejected.
     candidate_floor: float = 0.05
     target_class_id: int = 0
-    # Class 1 = "other banknote": drawn as a RED box (never as a Rs.50). None disables it (single-class models).
     other_class_id: int | None = None
     other_threshold: float = 0.5
-    confirm_frames: int = 1  # 1 == temporal confirmation disabled
+    confirm_frames: int = 1
     window_frames: int = 5
-    release_threshold_ratio: float = 0.8  # hysteresis: stay "locked" above ratio*threshold
+    release_threshold_ratio: float = 0.8
     extra: dict[str, Any] = field(default_factory=dict)
 
 

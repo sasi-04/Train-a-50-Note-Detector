@@ -26,12 +26,12 @@ def test_padding_colour_is_114():
 
 def test_blob_contract_is_rgb_nchw_float01():
     img = np.zeros((480, 640, 3), np.uint8)
-    img[..., 0] = 255  # BGR: pure blue
+    img[..., 0] = 255
     blob, _ = preprocess(img, 320)
     assert blob.shape == (1, 3, 320, 320) and blob.dtype == np.float32
     assert 0.0 <= blob.min() and blob.max() <= 1.0
     centre = blob[0, :, 160, 160]
-    assert centre[2] == pytest.approx(1.0) and centre[0] == pytest.approx(0.0)  # RGB order: blue is channel 2
+    assert centre[2] == pytest.approx(1.0) and centre[0] == pytest.approx(0.0)
 
 
 @pytest.mark.parametrize("bad", [None, "x", np.zeros((10, 10), np.uint8), np.zeros((10, 10, 3), np.float32),

@@ -30,15 +30,14 @@ def test_fixture_loads_and_reports_geometry(fixed_onnx):
 
 
 def test_explicit_imgsz_is_respected(fixed_onnx):
-    # the fixture graph is shape-agnostic; a real size mismatch is covered by test_onnx_parity
     assert OnnxDetector(fixed_onnx, imgsz=320).imgsz == 320
 
 
 def test_end_to_end_boxes_in_original_coordinates(fixed_onnx, frame):
     d = OnnxDetector(fixed_onnx, imgsz=480, score_floor=0.05)
-    res = d.infer(frame)  # frame is 1280x720 -> ratio 0.375, pad_y 105
+    res = d.infer(frame)
     scores = [round(c.score, 2) for c in res.candidates]
-    assert scores == [0.9, 0.3]  # duplicate removed by NMS
+    assert scores == [0.9, 0.3]
     best = res.candidates[0]
     assert best.box == pytest.approx(((240 - 50) / 0.375, (240 - 30 - 105) / 0.375, (240 + 50) / 0.375, (240 + 30 - 105) / 0.375), abs=0.5)
     assert res.timings.inference_ms > 0 and res.timings.total_ms >= res.timings.inference_ms

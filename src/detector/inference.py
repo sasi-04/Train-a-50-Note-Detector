@@ -92,7 +92,7 @@ class OnnxDetector:
             raise ModelLoadError(f"OpenCV could not load {self.model_path.name}: {_short(exc)}") from None
         if self.net is None or self.net.empty():
             raise ModelLoadError(f"OpenCV loaded an empty network from {self.model_path.name}")
-        if int(cv2.__version__.split(".")[0]) < 5:  # OpenCV 5's new engine is CPU-only and warns on these calls
+        if int(cv2.__version__.split(".")[0]) < 5:
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
             self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
         self._out_names = list(self.net.getUnconnectedOutLayersNames())

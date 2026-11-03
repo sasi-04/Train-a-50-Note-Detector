@@ -53,7 +53,7 @@ def test_opencv_matches_pytorch_raw_and_decoded(exported, frame):
 
     pt, onnx_path = exported
     det = OnnxDetector(onnx_path, score_floor=0.001)
-    assert det.imgsz == 320  # picked up from the sidecar
+    assert det.imgsz == 320
     net = YOLO(str(pt)).model.eval().float()
     blob, meta = preprocess(frame, 320)
     det.net.setInput(blob)
@@ -61,8 +61,8 @@ def test_opencv_matches_pytorch_raw_and_decoded(exported, frame):
     with torch.no_grad():
         ref = net(torch.from_numpy(blob))
     ref = (ref[0] if isinstance(ref, (list, tuple)) else ref).numpy()
-    assert np.abs(ref[:, :4] - cv_out[:, :4]).max() < 0.5       # px in model space
-    assert np.abs(ref[:, 4:] - cv_out[:, 4:]).max() < 2e-3      # raw scores
+    assert np.abs(ref[:, :4] - cv_out[:, :4]).max() < 0.5
+    assert np.abs(ref[:, 4:] - cv_out[:, 4:]).max() < 2e-3
     a = decode_output(cv_out, meta, 0.001)[:15]
     b = decode_output(ref, meta, 0.001)[:15]
     assert len(a) == len(b) > 0

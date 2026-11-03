@@ -15,10 +15,9 @@ from .logging_utils import get_logger
 from .postprocessing import Candidate
 from .thresholding import Decision
 
-# BGR colours
 GREEN = (80, 200, 60)
 RED = (60, 60, 230)
-ACCENT = (45, 45, 215)  # red accent of the header mark
+ACCENT = (45, 45, 215)
 GREY = (170, 170, 170)
 WHITE = (255, 255, 255)
 BLACK = (20, 20, 20)
@@ -53,7 +52,6 @@ def _font_path(bold: bool = False) -> str | None:
         if cand and Path(cand).is_file():
             try:
                 f = ImageFont.truetype(cand, 28)
-                # A font lacking the glyph renders the same .notdef box as any other missing char.
                 rupee, missing = f.getmask("\u20b9"), f.getmask("\uffff")
                 if rupee.size != missing.size or bytes(rupee) != bytes(missing):
                     return cand
@@ -197,7 +195,7 @@ def draw_banner(frame: np.ndarray, text: str, ok: bool, hint: str = "q quit  |  
     put_text(frame, text, 20, H - bh + 11, 30 if ok else 24, WHITE, bold=ok, shadow=False)
     hw, _ = text_size(hint, 15)
     put_text(frame, hint, W - hw - 16, H - bh + 21, 15, (225, 225, 225), shadow=False)
-    if ok:  # green frame border: unmistakable from across the room
+    if ok:
         cv2.rectangle(frame, (0, 0), (W - 1, H - 1), GREEN, 8)
 
 
@@ -213,7 +211,7 @@ def draw_hud(frame: np.ndarray, lines: list[str], color=WHITE, top: int = 56) ->
         y += 26
 
 
-def draw_status_banner(frame: np.ndarray, text: str, ok: bool) -> None:  # backwards-compatible alias
+def draw_status_banner(frame: np.ndarray, text: str, ok: bool) -> None:
     draw_banner(frame, text, ok)
 
 

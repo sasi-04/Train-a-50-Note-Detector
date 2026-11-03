@@ -78,7 +78,7 @@ def test_temporal_confirmation_delays_detection_on_still(fixed_onnx, tmp_path):
     run(["--model", str(fixed_onnx), "--imgsz", "480", "--source", str(img), "--no-display", "--max-frames", "5",
          "--threshold", "0.5", "--confirm-frames", "3", "--summary-json", str(out)])
     s = json.loads(out.read_text())
-    assert s["frames_processed"] == 5 and s["frames_with_accepted_detection"] == 3  # frames 3,4,5
+    assert s["frames_processed"] == 5 and s["frames_with_accepted_detection"] == 3
 
 
 def test_unreadable_source_file(fixed_onnx, tmp_path):
@@ -90,7 +90,6 @@ def test_unreadable_source_file(fixed_onnx, tmp_path):
 def test_help_and_mandatory_command_via_subprocess(tmp_path):
     h = subprocess.run([sys.executable, str(ROOT / "test.py"), "--help"], capture_output=True, text=True, timeout=60)
     assert h.returncode == 0 and "--model" in h.stdout and "--threshold" in h.stdout
-    # exact mandatory form, with a model that does not exist -> clean error, no traceback
     r = subprocess.run([sys.executable, str(ROOT / "test.py"), "--model", str(tmp_path / "model.onnx")],
                        capture_output=True, text=True, timeout=60)
     assert r.returncode == app.EXIT_MODEL

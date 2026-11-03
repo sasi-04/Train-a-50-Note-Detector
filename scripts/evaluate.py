@@ -147,7 +147,6 @@ def main() -> int:
     thr_pt = next((p for p in pts if abs(p.threshold - threshold) < 1e-9), None)
     res = overall(records, threshold, a.iou)
 
-    # ---- second class: 'other note' (red box) ----------------------------------------------------------------
     two_class = (detector.num_classes or 1) > 1
     other_thr = other_status = other_sel = res_other = None
     if two_class:

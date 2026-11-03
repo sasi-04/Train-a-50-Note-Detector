@@ -17,7 +17,7 @@ OFF = ((500, 500, 600, 600), 0.8, 0)
 def test_match_tp_fp_fn():
     assert match(rec([GOOD, OFF]), 0.5) == (1, 1, 0)
     assert match(rec([OFF]), 0.5) == (0, 1, 1)
-    assert match(rec([GOOD]), 0.95) == (0, 0, 1)  # below threshold -> missed
+    assert match(rec([GOOD]), 0.95) == (0, 0, 1)
 
 
 def test_wrong_class_ignored_in_matching():
@@ -64,12 +64,11 @@ def test_average_precision_perfect_and_degenerate():
 
 
 def test_class_aware_matching_and_negatives():
-    # a labelled 'other note' (class 1): positive for class 1, negative for class 0
     r = ImageRecord("o", {"denomination": "20"}, np.array([[100, 100, 300, 200.0]]),
                     [((102, 101, 298, 199), 0.9, 1), ((102, 101, 298, 199), 0.6, 0)], gt_cls=np.array([1]))
     assert not r.positive and r.has(1)
     assert match(r, 0.5, target_class=1) == (1, 0, 0)
-    assert match(r, 0.5, target_class=0) == (0, 1, 0)  # a Rs.50 box on an other note is a FP for class 0
+    assert match(r, 0.5, target_class=0) == (0, 1, 0)
     pts0 = sweep([r], [0.5], target_class=0)
     assert pts0[0].neg_images == 1 and pts0[0].neg_images_with_fp == 1
     pts1 = sweep([r], [0.5], target_class=1)
@@ -79,7 +78,7 @@ def test_class_aware_matching_and_negatives():
 def test_shown_label_follows_app_priority():
     from detector.metrics import note_type_table, shown_label
     both = ImageRecord("b", {"d": "x"}, np.zeros((0, 4)), [((10, 10, 300, 200), 0.8, 0), ((10, 10, 300, 200), 0.9, 1)])
-    assert shown_label(both, 0.5, 0.5) == "rs50"          # Rs.50 wins over other
+    assert shown_label(both, 0.5, 0.5) == "rs50"
     other = ImageRecord("o", {"d": "y"}, np.zeros((0, 4)), [((10, 10, 300, 200), 0.9, 1)])
     assert shown_label(other, 0.5, 0.5) == "other" and shown_label(other, 0.5, None) == "none"
     t = note_type_table([both, other], 0.5, 0.5, lambda r: r.meta["d"])
@@ -88,7 +87,7 @@ def test_shown_label_follows_app_priority():
 
 def test_wilson_interval_properties():
     lo, hi = wilson_interval(0, 10)
-    assert lo == 0.0 and 0.25 < hi < 0.35  # 0/10 observed does NOT mean 0% true rate
+    assert lo == 0.0 and 0.25 < hi < 0.35
     assert wilson_interval(0, 0) == (0.0, 1.0)
     lo, hi = wilson_interval(50, 100)
     assert lo < 0.5 < hi

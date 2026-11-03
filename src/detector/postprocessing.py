@@ -128,7 +128,7 @@ def decode_output(
         boxes, scores, cls = boxes[keep], scores[keep], cls[keep]
     else:
         if layout == "channels_first":
-            mat = mat.T  # -> (N, 4+nc)
+            mat = mat.T
         if mat.shape[1] < 5:
             raise OutputFormatError(f"expected at least 5 channels (4 box + >=1 class), got {mat.shape[1]}")
         cls_scores = mat[:, 4:]

@@ -16,7 +16,6 @@ def test_accept_reject_reasons():
 
 
 def test_hairline_strip_is_rejected_as_implausible_shape():
-    # a hairline, full-height box with a score above the threshold can never be a banknote
     strip = Candidate(838, 0, 842, 700, 0.57, 0)
     d = decide([strip], 0.5, frame_w=1280, frame_h=720)[0]
     assert not d.accepted and d.reason == "implausible_shape"
@@ -24,12 +23,12 @@ def test_hairline_strip_is_rejected_as_implausible_shape():
 
 def test_plausible_shapes_for_a_note_in_either_orientation():
     from detector.thresholding import plausible_shape
-    assert plausible_shape((100, 100, 500, 300), 1280, 720)      # landscape note, aspect 2
-    assert plausible_shape((100, 100, 300, 500), 1280, 720)      # sideways note
-    assert plausible_shape((100, 100, 400, 340), 1280, 720)      # near-square (close-up, tilted)
-    assert not plausible_shape((100, 100, 130, 130), 1280, 720)  # speck: < 5% of the short side
-    assert not plausible_shape((0, 0, 1280, 120), 1280, 720)     # long band, aspect > 4.5
-    assert not plausible_shape((10, 10, 10, 90), 1280, 720)      # zero width
+    assert plausible_shape((100, 100, 500, 300), 1280, 720)
+    assert plausible_shape((100, 100, 300, 500), 1280, 720)
+    assert plausible_shape((100, 100, 400, 340), 1280, 720)
+    assert not plausible_shape((100, 100, 130, 130), 1280, 720)
+    assert not plausible_shape((0, 0, 1280, 120), 1280, 720)
+    assert not plausible_shape((10, 10, 10, 90), 1280, 720)
 
 
 def test_threshold_boundary_is_inclusive():
@@ -52,9 +51,9 @@ def test_temporal_requires_k_of_m_and_never_replays_stale_box():
     hit, miss = decide([cand(0.9)], 0.5), decide([], 0.5)
     assert t.update(hit, 0.5) is None
     assert t.update(hit, 0.5) is None
-    assert t.update(hit, 0.5) is not None  # 3rd hit -> locked
-    assert t.update(miss, 0.5) is None     # no stale box shown during a miss
-    assert t.update(miss, 0.5) is None     # grace exhausted -> reset
+    assert t.update(hit, 0.5) is not None
+    assert t.update(miss, 0.5) is None
+    assert t.update(miss, 0.5) is None
     assert t.state.startswith("confirming 0")
 
 
@@ -63,7 +62,7 @@ def test_temporal_hysteresis_keeps_lock_slightly_below_threshold():
     hit = decide([cand(0.9)], 0.5)
     t.update(hit, 0.5)
     assert t.update(hit, 0.5) is not None
-    weak = decide([cand(0.45)], 0.5)  # below 0.5 but above 0.4
+    weak = decide([cand(0.45)], 0.5)
     assert t.update(weak, 0.5) is not None
 
 
@@ -96,7 +95,6 @@ def test_select_threshold_falls_back_when_constraints_unmet():
 
 
 def test_select_threshold_avoids_knife_edge_when_slightly_lower_recall_is_far_safer():
-    # best recall only at 0.41 (0.40 already has a false alarm); 0.5/0.6 lose a few points of recall but keep margin
     pts = [sp(0.40, 26, 1, 3, 1), sp(0.41, 26, 0, 3, 0), sp(0.45, 26, 0, 3, 0), sp(0.50, 25, 0, 4, 0), sp(0.60, 23, 0, 6, 0)]
     best, why = select_threshold(pts, 0.0, 0.8)
     assert 0.45 <= best.threshold <= 0.50 and "middle" in why

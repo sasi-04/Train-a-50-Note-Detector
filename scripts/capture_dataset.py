@@ -58,7 +58,7 @@ def add_image(paths: DatasetPaths, rows: list[dict], img, meta: dict, known_hash
     row = {"image_id": image_id, "filename": fname, "split": "", "sha256": digest, "label_status": "unlabeled", **meta}
     row.pop("_unused", None)
     if meta["denomination"] not in ("50_new", "mixed", "unknown"):
-        write_label_file(paths.labels / (image_id + ".txt"), [])  # genuine negative: empty label
+        write_label_file(paths.labels / (image_id + ".txt"), [])
         row["label_status"] = "negative_confirmed"
     rows.append(row)
     return row
@@ -81,7 +81,7 @@ def cmd_ingest(a: argparse.Namespace) -> int:
     files = sorted(p for p in src.iterdir() if p.suffix.lower() in IMAGE_EXTS)
     added = dup = bad = 0
     for p in files:
-        img = cv2.imread(str(p))  # honours EXIF orientation; re-encoding drops EXIF/GPS
+        img = cv2.imread(str(p))
         if img is None:
             print(f"skip (unreadable): {p.name}")
             bad += 1

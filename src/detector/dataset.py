@@ -22,7 +22,6 @@ DENOMINATIONS = ["50_new", "50_old", "10", "20", "100", "200", "500", "object", 
 REQUIRED_NEGATIVE_DENOMS = ["10", "20", "100", "200", "500"]
 OTHER_NOTE_DENOMS = set(REQUIRED_NEGATIVE_DENOMS)
 NON_NOTE = {"object", "background"}
-# Class ids in the label files: 0 = the target Rs.50, 1 = any other banknote (shown with a red box, never as Rs.50).
 NUM_CLASSES = 2
 OTHER_CLASS_ID = 1
 SIDES = ["front", "back", "na", "unknown"]
@@ -36,16 +35,12 @@ SPLITS = ["train", "val", "test", ""]
 FIELDS = ["image_id", "filename", "denomination", "side", "lighting", "angle", "background",
           "source", "session", "split", "label_status", "notes", "sha256"]
 
-# Recommended minimums (guidelines, reported as warnings; not statistical guarantees).
 RECOMMENDED = {"target_per_side": 100, "negative_per_denom": 30, "non_note": 50, "sessions": 6}
 
 VOCAB = {"denomination": DENOMINATIONS, "side": SIDES, "lighting": LIGHTING, "angle": ANGLES,
          "background": BACKGROUNDS, "source": SOURCES, "label_status": LABEL_STATUSES}
 
 
-# ---------------------------------------------------------------------------------------------
-# paths + manifest I/O
-# ---------------------------------------------------------------------------------------------
 @dataclass(frozen=True)
 class DatasetPaths:
     root: Path
@@ -112,9 +107,6 @@ def manifest_hash(rows: list[dict[str, str]]) -> str:
     return h.hexdigest()[:16]
 
 
-# ---------------------------------------------------------------------------------------------
-# YOLO label validation
-# ---------------------------------------------------------------------------------------------
 @dataclass
 class LabelResult:
     boxes: list[tuple[int, float, float, float, float]] = field(default_factory=list)
@@ -169,11 +161,8 @@ def write_label_file(path: Path, boxes: Iterable[tuple[int, float, float, float,
     path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
 
 
-# ---------------------------------------------------------------------------------------------
-# image fingerprints
-# ---------------------------------------------------------------------------------------------
-HASH_SIZE = 16  # 16x16 = 256-bit dHash. 8x8 (64-bit) falsely matched different banknotes that share one layout.
-NEAR_DUP_DISTANCE = 20  # bits of 256 (~8%); measured: same-shot pairs <= ~12%, different notes >= 18%
+HASH_SIZE = 16
+NEAR_DUP_DISTANCE = 20
 
 
 def dhash(gray: np.ndarray) -> int:
@@ -186,9 +175,6 @@ def hamming(a: int, b: int) -> int:
     return (a ^ b).bit_count()
 
 
-# ---------------------------------------------------------------------------------------------
-# audit
-# ---------------------------------------------------------------------------------------------
 @dataclass
 class AuditResult:
     errors: list[str] = field(default_factory=list)
@@ -301,7 +287,6 @@ def audit_dataset(root: Path | str, num_classes: int = NUM_CLASSES, near_dup_dis
         if not any((paths.images / (lab.stem + e)).exists() for e in IMAGE_EXTS):
             warn.append(f"{lab.name}: orphan label (no image)")
 
-    # near-duplicates + leakage -------------------------------------------------------------
     names = [p.name for p in usable]
     hv = [hashes[n] for n in names]
     leaks, same_split_dups = [], 0
@@ -332,7 +317,6 @@ def audit_dataset(root: Path | str, num_classes: int = NUM_CLASSES, near_dup_dis
         if len(sp) > 1:
             err.append(f"session '{s}' spans multiple splits {sorted(sp)}; re-run split_dataset.py")
 
-    # coverage ------------------------------------------------------------------------------
     den = Counter(r["denomination"] or "unknown" for r in rows)
     side = Counter((r["denomination"], r["side"]) for r in rows if r["denomination"] in ("50_new", "mixed"))
     split_counts = Counter(r["split"] or "unassigned" for r in rows)

@@ -29,12 +29,12 @@ from .thresholding import SweepPoint, plausible_shape
 class ImageRecord:
     image_id: str
     meta: dict
-    gt: np.ndarray  # (n,4) xyxy pixels, all classes
-    preds: list[tuple[tuple[float, float, float, float], float, int]]  # (box, score, class)
+    gt: np.ndarray
+    preds: list[tuple[tuple[float, float, float, float], float, int]]
     inference_ms: float = 0.0
     total_ms: float = 0.0
     image_wh: tuple[int, int] = (0, 0)
-    gt_cls: np.ndarray | None = None  # (n,) class per gt box; default all class 0
+    gt_cls: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         if self.gt_cls is None:
@@ -218,7 +218,6 @@ def overall(records: Sequence[ImageRecord], threshold: float, iou_thr: float = 0
     p, rc = out["precision"], out["recall"]
     out["f1"] = 2 * p * rc / (p + rc) if p and rc else (0.0 if p is not None and rc is not None else None)
     out["ap50"] = average_precision(records, iou_thr, target_class)
-    # image-level confusion matrix: rows = actual, cols = predicted
     out["confusion_image_level"] = {
         "actual_target__pred_target": out["tp_images"], "actual_target__pred_none": out["fn_images"],
         "actual_none__pred_target": out["fp_images"], "actual_none__pred_none": out["negative_images"] - out["fp_images"],

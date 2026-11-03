@@ -25,7 +25,6 @@ def test_layout_detection():
 
 
 def test_coordinates_map_back_to_original_frame():
-    # model-space box centred (320, 320), 200x100 -> original: x (320-0)/0.5, y (320-140)/0.5
     c = decode_output(head([(320, 320, 200, 100, 0.9)]), META)
     assert len(c) == 1
     assert c[0].box == pytest.approx((440, 260, 840, 460), abs=1e-3)
@@ -50,7 +49,7 @@ def test_channels_last_equivalent():
 def test_score_floor_and_nms():
     out = head([(320, 320, 200, 100, 0.9), (322, 321, 200, 100, 0.8), (100, 300, 40, 40, 0.04)])
     c = decode_output(out, META, score_floor=0.05, nms_iou=0.45)
-    assert [round(x.score, 2) for x in c] == [0.9]  # duplicate suppressed, sub-floor dropped
+    assert [round(x.score, 2) for x in c] == [0.9]
 
 
 def test_empty_output_gives_no_candidates():

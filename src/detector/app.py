@@ -101,7 +101,6 @@ def run(argv: list[str] | None = None) -> int:
         print(f"error: {exc}", file=sys.stderr)
         print("Train and export a model first (see README), or pass --model <path to .onnx>.", file=sys.stderr)
         return EXIT_MODEL
-    # The red 'other note' box needs a 2-class model; a single-class model simply never shows it.
     other_id = cfg.other_class_id if (cfg.other_class_id is not None and (detector.num_classes or 1) > cfg.other_class_id) else None
     log.info("Other-note (red box) detection: %s", f"on, threshold {cfg.other_threshold:.2f}" if other_id is not None else "off (single-class model)")
 

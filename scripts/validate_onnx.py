@@ -27,9 +27,9 @@ from detector.inference import OnnxDetector, read_sidecar
 from detector.postprocessing import decode_output, describe_layout, iou_one_to_many
 from detector.preprocessing import preprocess
 
-TOL_RAW_BOX_PX = 0.5      # raw box coordinate difference, in 640-px model space
-TOL_RAW_SCORE = 2e-3      # raw class-score difference
-MIN_DET_AGREEMENT = 0.99  # fraction of reference detections matched at IoU >= 0.9
+TOL_RAW_BOX_PX = 0.5
+TOL_RAW_SCORE = 2e-3
+MIN_DET_AGREEMENT = 0.99
 
 
 def synthetic_images(n: int = 6, size=(720, 1280)) -> list[np.ndarray]:

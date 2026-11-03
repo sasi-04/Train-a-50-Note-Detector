@@ -13,14 +13,10 @@ BELOW_THRESHOLD = "below_threshold"
 WRONG_CLASS = "wrong_class"
 INVALID_BOX = "invalid_box"
 IMPLAUSIBLE_SHAPE = "implausible_shape"
-OTHER_NOTE = "other_note"  # a confident 'other note' detection: shown in red, never counted as a Rs.50
+OTHER_NOTE = "other_note"
 
-# Geometry of a banknote seen by a camera. A Rs.50 is 135x66 mm (aspect 2.05); perspective, rotation and
-# partial occlusion stretch that, but never to a hairline strip or a speck. These limits are fixed from the
-# physical object, not tuned on evaluation images. It is only a sanity net: it does NOT stop large note-shaped
-# false positives such as a blue-green window (those need webcam negatives in the training data).
-MIN_BOX_FRAC = 0.05   # shorter box side >= 5% of the shorter frame side
-MAX_ASPECT = 4.5      # longer side / shorter side
+MIN_BOX_FRAC = 0.05
+MAX_ASPECT = 4.5
 
 
 def plausible_shape(box: tuple[float, float, float, float], frame_w: int, frame_h: int,
@@ -143,11 +139,6 @@ class TemporalConfirmer:
         return None
 
 
-# ---------------------------------------------------------------------------
-# Threshold selection (used by scripts/evaluate.py on the VALIDATION split only)
-# ---------------------------------------------------------------------------
-
-
 @dataclass(frozen=True)
 class SweepPoint:
     threshold: float
@@ -185,7 +176,7 @@ def select_threshold(
     if ok:
         top = max(p.recall for p in ok)
         plateau = sorted((p for p in ok if p.recall >= top - recall_slack), key=lambda p: p.threshold)
-        best = plateau[len(plateau) // 2]  # middle of the plateau: margin on both failure modes
+        best = plateau[len(plateau) // 2]
         return best, (
             f"rule 1: negative-image FP rate <= {max_neg_fp_rate:.3f} and recall >= {min_recall:.2f}; best recall {top:.3f}; "
             f"{len(plateau)} thresholds within {recall_slack:.2f} recall of it span {plateau[0].threshold:.2f}-{plateau[-1].threshold:.2f}; "

@@ -86,7 +86,6 @@ def main() -> int:
     try:
         for idx in chosen:
             den, side, title, tip = STAGES[idx]
-            # -- wait for SPACE --------------------------------------------------------------------
             started = a.auto
             while not started and not quit_all:
                 ok, frame, _ = cam.read()
@@ -104,7 +103,6 @@ def main() -> int:
                 break
             if not started:
                 continue
-            # -- record -----------------------------------------------------------------------------
             t0 = last = time.time()
             saved = 0
             while time.time() - t0 < a.seconds:
@@ -117,7 +115,7 @@ def main() -> int:
                     recent_sharp.append(sharp)
                     del recent_sharp[:-20]
                     med = sorted(recent_sharp)[len(recent_sharp) // 2]
-                    if sharp >= max(3.0, 0.6 * med):  # skip black start-up frames and motion-blurred ones (webcams are soft: compare to its own norm)
+                    if sharp >= max(3.0, 0.6 * med):
                         meta = {"denomination": den, "side": side, "lighting": a.lighting, "angle": "unknown",
                                 "background": "cluttered" if den == "background" else "hand_held", "source": "webcam",
                                 "session": a.session, "notes": f"guided webcam capture: {title}"}

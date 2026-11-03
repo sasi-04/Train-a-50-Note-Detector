@@ -51,7 +51,7 @@ def main() -> int:
                                  dynamic=False, half=False, nms=False, batch=1))
     out.parent.mkdir(parents=True, exist_ok=True)
     if exported.resolve() != out.resolve():
-        shutil.move(str(exported), out)  # Ultralytics writes next to the .pt; keep only the requested artifact
+        shutil.move(str(exported), out)
 
     graph = onnx.load(str(out))
     onnx.checker.check_model(graph)

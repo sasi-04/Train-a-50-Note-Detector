@@ -46,7 +46,7 @@ def assign(rows: list[dict], val: float, test: float, seed: int) -> dict[str, st
         def deficit(sp: str) -> float:
             d = goal[sp] - have[sp]
             if tg and target_have[sp] == 0 and sp != "train":
-                d += total  # make sure val/test each get a target-bearing session first
+                d += total
             return d
 
         sp = max(("val", "test", "train"), key=deficit)

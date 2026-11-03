@@ -28,7 +28,7 @@ class Annotator:
     def __init__(self, paths: DatasetPaths, rows: list[dict], todo: list[dict]):
         self.paths, self.rows, self.todo = paths, rows, todo
         self.i = 0
-        self.boxes: list[list[float]] = []  # pixel x1,y1,x2,y2
+        self.boxes: list[list[float]] = []
         self.drag: tuple[int, int] | None = None
         self.cur: tuple[int, int] | None = None
         self.img = None

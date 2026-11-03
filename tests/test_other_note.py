@@ -41,11 +41,9 @@ def test_other_class_disabled_for_single_class_models():
 
 
 def test_class_agnostic_nms_gives_one_box_per_note():
-    # same box claimed by both classes: Rs.50 0.55 vs other 0.70 -> only the stronger survives
     out = two_class_head([(320, 320, 200, 100, 0.55, 0.70)])
     c = decode_output(out, META)
     assert len(c) == 1 and c[0].class_id == 1 and c[0].score == pytest.approx(0.70)
-    # (argmax over classes already picks one class per anchor; a second anchor on the same note must not add a 2nd box)
     out = two_class_head([(320, 320, 200, 100, 0.55, 0.10), (322, 321, 200, 100, 0.10, 0.70)])
     c = decode_output(out, META)
     assert len(c) == 1 and c[0].class_id == 1
@@ -65,7 +63,7 @@ def test_end_to_end_headless_summary_counts_other_frames(tmp_path):
 
     size = 480
     out = np.zeros((1, 6, 20), np.float32)
-    out[0, :, 0] = (240, 240, 100, 60, 0.05, 0.9)  # confident OTHER note, no Rs.50
+    out[0, :, 0] = (240, 240, 100, 60, 0.05, 0.9)
     inp = helper.make_tensor_value_info("images", TensorProto.FLOAT, [1, 3, size, size])
     outp = helper.make_tensor_value_info("output0", TensorProto.FLOAT, list(out.shape))
     nodes = [helper.make_node("ReduceMean", ["images"], ["mean"], keepdims=0), helper.make_node("Mul", ["mean", "zero"], ["z"]),

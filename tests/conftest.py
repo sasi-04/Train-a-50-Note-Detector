@@ -22,9 +22,9 @@ def make_output(dets, n=20):
 
 
 FIXED_DETS = [
-    (240, 240, 100, 60, 0.90),   # strong detection
-    (242, 241, 100, 60, 0.80),   # duplicate -> removed by NMS
-    (100, 100, 50, 50, 0.30),    # weak candidate
+    (240, 240, 100, 60, 0.90),
+    (242, 241, 100, 60, 0.80),
+    (100, 100, 50, 50, 0.30),
 ]
 
 

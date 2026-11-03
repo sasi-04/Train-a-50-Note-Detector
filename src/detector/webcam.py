@@ -46,14 +46,13 @@ class FrameSource:
         self._factory = _capture_factory or cv2.VideoCapture
         self._cap = None
         self._still: np.ndarray | None = None
-        self._first: np.ndarray | None = None  # first frame of a video file, read while validating it
+        self._first: np.ndarray | None = None
         self._failures = 0
         self._reopens = 0
         self.is_camera = self.source is None
         self.frames_read = 0
         self._open()
 
-    # -- opening -----------------------------------------------------------------------------
     def _open(self) -> None:
         if self.source is not None:
             if not self.source.is_file():
@@ -91,7 +90,6 @@ class FrameSource:
             "settings. Try --camera 1, or --source <image|video> to run without a webcam."
         )
 
-    # -- reading -----------------------------------------------------------------------------
     def read(self) -> tuple[bool, np.ndarray | None, str]:
         """Return (ok, frame, status). status is '' when healthy, otherwise a user-facing message.
 
@@ -128,7 +126,7 @@ class FrameSource:
         try:
             self._open()
         except CameraError:
-            pass  # next read() will fail again and eventually exhaust reopens
+            pass
         self._failures = 0
         return False, None, f"camera lost, reconnecting ({self._reopens}/{self.max_reopens})..."
 

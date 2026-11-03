@@ -45,7 +45,7 @@ def make_rot90_copies(paths: DatasetPaths, rows: list[dict], out_dir: Path, seed
     listed: list[str] = []
     for r in rows:
         boxes = parse_label_file(paths.labels / (r["image_id"] + ".txt"), 2).boxes
-        if not boxes:  # no-note images: nothing to teach about orientation
+        if not boxes:
             continue
         img = cv2.imread(str(paths.images / r["filename"]))
         if img is None:
@@ -54,7 +54,6 @@ def make_rot90_copies(paths: DatasetPaths, rows: list[dict], out_dir: Path, seed
         rot = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE if cw else cv2.ROTATE_90_COUNTERCLOCKWISE)
         new = []
         for c, cx, cy, w, h in boxes:
-            # clockwise: (x, y) -> (1 - y, x); counter-clockwise: (x, y) -> (y, 1 - x); width/height swap
             new.append((c, (1 - cy) if cw else cy, cx if cw else (1 - cx), h, w))
         stem = r["image_id"] + ("_rcw" if cw else "_rccw")
         cv2.imwrite(str(img_dir / (stem + ".jpg")), rot, [cv2.IMWRITE_JPEG_QUALITY, 92])
@@ -70,11 +69,10 @@ def write_data_yaml(paths: DatasetPaths, run_dir: Path, final_fit: bool = False,
     data_dir = run_dir / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
     for sp in ("train", "val", "test"):
-        # images still 'unlabeled' (other-denomination notes not yet boxed) must not teach "no note here"
         sel = [r for r in rows if (r["split"] == sp or (final_fit and sp == "train")) and r["label_status"] != "unlabeled"]
         lst = [str((paths.images / r["filename"]).resolve()) for r in sel]
         if rot90 and sp == "train":
-            lst += make_rot90_copies(paths, sel, data_dir / "rot90" , seed)  # /images/ -> /labels/ mapping holds inside rot90/
+            lst += make_rot90_copies(paths, sel, data_dir / "rot90" , seed)
         (data_dir / f"{sp}.txt").write_text("\n".join(lst) + "\n", encoding="utf-8")
     data = {"path": str(data_dir.resolve()), "train": "train.txt", "val": "val.txt", "test": "test.txt",
             "names": {0: TARGET_CLASS_NAME, 1: OTHER_CLASS_NAME}}
@@ -162,7 +160,7 @@ def main() -> int:
             print(f"note: {model_src} will be downloaded by Ultralytics (COCO weights; internet required once)")
         model = YOLO(str(model_src))
         model.train(data=str(data_yaml), project=str(run_root), name=name, exist_ok=True, seed=seed,
-                    single_cls=False,  # a checkpoint's old train_args (single_cls=True) would otherwise be inherited
+                    single_cls=False,
                     verbose=True, **tr)
         got_nc = int(getattr(getattr(model, "model", None), "nc", 0) or 0)
         if got_nc != 2:

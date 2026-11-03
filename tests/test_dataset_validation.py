@@ -26,7 +26,7 @@ def add(paths, rows, session, den, side="front", split="", box=True, seed=None, 
         if box and den in ("50_new", "mixed"):
             write_label_file(lab, [(0, 0.5, 0.5, 0.5, 0.5)])
         elif box and den in ("10", "20", "100", "200", "500"):
-            write_label_file(lab, [(1, 0.5, 0.5, 0.5, 0.5)])  # 'other note' class
+            write_label_file(lab, [(1, 0.5, 0.5, 0.5, 0.5)])
         else:
             write_label_file(lab, [])
     rows.append({"image_id": iid, "filename": fn, "denomination": den, "side": side, "lighting": "normal",
@@ -54,7 +54,7 @@ def test_complete_dataset_is_ready(tmp_path):
     res = audit_dataset(paths.root)
     assert res.errors == [] and res.readiness_blockers == [] and res.ready_for_training
     assert res.stats["target_by_side"]["front"] == 4 and res.stats["target_by_side"]["back"] == 4
-    assert res.warnings  # below recommended minimums must be flagged, not hidden
+    assert res.warnings
 
 
 def test_missing_object_negatives_blocks_unless_explicitly_allowed(tmp_path):
@@ -75,7 +75,7 @@ def test_unboxed_other_notes_warn_and_wrong_class_errors(tmp_path):
     others = [r for r in rows if r["denomination"] == "20"]
     others[0]["label_status"] = "unlabeled"
     write_label_file(paths.labels / (others[0]["image_id"] + ".txt"), [])
-    write_label_file(paths.labels / (others[1]["image_id"] + ".txt"), [])        # 'annotated' but no box
+    write_label_file(paths.labels / (others[1]["image_id"] + ".txt"), [])
     save_manifest(paths, rows)
     res = audit_dataset(paths.root)
     assert any("no 'other note' box yet" in w for w in res.warnings)
@@ -167,7 +167,7 @@ def test_invalid_vocab_and_missing_session(tmp_path):
 def test_denomination_is_never_inferred_from_filename(tmp_path):
     paths, rows = build_complete(tmp_path)
     r = next(r for r in rows if r["denomination"] == "20")
-    r["denomination"] = "50_new"  # filename still says '20'; manifest + label disagree -> must be flagged
+    r["denomination"] = "50_new"
     save_manifest(paths, rows)
     assert any("no Rs.50 box" in e for e in audit_dataset(paths.root).errors)
 
